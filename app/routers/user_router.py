@@ -1,8 +1,5 @@
-# app/api/routers/user.py
 from fastapi import APIRouter, Depends, HTTPException, status
-from fastapi.security import OAuth2PasswordRequestForm
 from typing import Any
-
 from app.api.dependencies import get_current_user, get_user_service
 from app.services.user_service import UserService
 from app.core.security import create_access_token
@@ -36,10 +33,6 @@ async def register_user(user_in: UserCreate, user_service: UserService = Depends
 
 @router.post("/login")
 async def login(login_data: UserLogin, user_service: UserService = Depends(get_user_service)) -> Any:
-    """
-    API đăng nhập lấy JWT Token
-    """
-    # Gọi logic kiểm tra tài khoản và mật khẩu từ UserService
     user = await user_service.login(login_data.username, login_data.password)
 
     if not user:
@@ -56,7 +49,4 @@ async def login(login_data: UserLogin, user_service: UserService = Depends(get_u
 
 @router.get("/profile", response_model=UserResponse)
 async def get_my_profile(current_user: User = Depends(get_current_user)) -> Any:
-    """
-    API lấy thông tin của chính User đang đăng nhập (Yêu cầu gửi kèm Token)
-    """
     return current_user

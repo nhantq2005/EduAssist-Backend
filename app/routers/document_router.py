@@ -1,6 +1,7 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Form
 from app.api.dependencies import get_document_service
+from app.core.permissions import require_role
 from app.schemas.document import DocumentRequest, DocumentResponse, DocumentUpdateRequest
 from fastapi import UploadFile, File, BackgroundTasks
 from app.services.document_service import DocumentService
@@ -14,7 +15,8 @@ async def run_pipeline_task(document_id: int, file_bytes: bytes, file_name: str)
 router = APIRouter(tags=["documents"])
 
 @router.post("/documents", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
-async def create_document_api(
+@require_role(["ADMIN", "LECTURE"])
+async def create_document(
     background_tasks: BackgroundTasks,
     title: str = Form(...),
     lecturer_id: int = Form(...),
@@ -36,14 +38,14 @@ async def create_document_api(
     return document
 
 @router.get("/subjects/{subject_id}/documents", response_model=List[DocumentResponse])
-async def get_documents_by_subject_api(subject_id: int, document_service: DocumentService = Depends(get_document_service)):
+async def get_documents_by_subject(subject_id: int, document_service: DocumentService = Depends(get_document_service)):
     documents = await document_service.get_documents_by_subject(subject_id)
     return documents
 
 
 
 @router.get("/documents", response_model=List[DocumentResponse])
-async def list_documents_api(params: dict, document_service: DocumentService = Depends(get_document_service)):
+async def list_documents(params: dict, document_service: DocumentService = Depends(get_document_service)):
     params = {
         "title": params.get("title"),
         "created_date": params.get("created_date"),
@@ -55,7 +57,7 @@ async def list_documents_api(params: dict, document_service: DocumentService = D
 
 
 @router.get("/documents/{document_id}", response_model=DocumentResponse)
-async def get_document_api(document_id: int, document_service: DocumentService = Depends(get_document_service)):
+async def get_document_by_id(document_id: int, document_service: DocumentService = Depends(get_document_service)):
     document = await document_service.get_document_by_id(document_id)
     if not document:
         raise HTTPException(status_code=404, detail="Không tìm thấy tài liệu")
@@ -63,7 +65,8 @@ async def get_document_api(document_id: int, document_service: DocumentService =
 
 
 @router.put("/documents/{document_id}", response_model=DocumentResponse)
-async def update_document_api(
+@require_role(["ADMIN", "LECTURE"])
+async def update_document(
     document_id: int,
     title: str | None = Form(None),
     lecturer_id: int | None = Form(None),
@@ -83,6 +86,7 @@ async def update_document_api(
 
 
 @router.delete("/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
+@require_role(["ADMIN", "LECTURE"])
 async def delete_document_api(document_id: int, document_service: DocumentService = Depends(get_document_service)):
     success = await document_service.delete_document(document_id)
     if not success:
