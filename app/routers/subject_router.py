@@ -4,15 +4,15 @@ from typing import List
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.api.dependencies import get_subject_service
+from app.core.permissions import require_role
 from app.schemas.subject import SubjectRequest, SubjectResponse, SubjectDetailRespone
-from app.schemas.user import UserResponse
 from app.services.subject_service import SubjectService
-from app.db.session import get_db
 
 router = APIRouter(tags=["Subjects"])
 
 
 @router.post("/subjects", response_model=SubjectResponse)
+@require_role(["ADMIN"])
 async def create_subject(subject: SubjectRequest, subject_service: SubjectService = Depends(get_subject_service)):
     return await subject_service.create_subject(subject=subject)
 
@@ -32,6 +32,7 @@ async def read_subject(subject_id: int, subject_service: SubjectService = Depend
 
 
 @router.put("/subjects/{subject_id}", response_model=SubjectResponse)
+@require_role(["ADMIN", "LECTURE"])
 async def update_subject(subject_id: int, subject: SubjectRequest,
                          subject_service: SubjectService = Depends(get_subject_service)):
     db_subject = await subject_service.update_subject(subject_id=subject_id, subject=subject)
@@ -41,6 +42,7 @@ async def update_subject(subject_id: int, subject: SubjectRequest,
 
 
 @router.delete("/subjects/{subject_id}", status_code=status.HTTP_204_NO_CONTENT)
+@require_role(["ADMIN", "LECTURE"])
 async def delete_subject(
         subject_id: int,
         subject_service: SubjectService = Depends(get_subject_service)
@@ -55,12 +57,12 @@ async def delete_subject(
     return None
 
 
-@router.get("/users/{user_id}/subjects", response_model=SubjectResponse)
+@router.get("/users/{lecture_id}/subjects", response_model=SubjectResponse)
 async def get_subjects_by_lecture(
-        user_id: int,
+        lecture_id: int,
         subject_service: SubjectService = Depends(get_subject_service)
 ):
-    subjects = subject_service.get_subjects_by_lecturer(user_id)
+    subjects = subject_service.get_subjects_by_lecturer(lecture_id)
     if subjects is None:
         raise HTTPException(status_code=404, detail="User not found")
     return subjects

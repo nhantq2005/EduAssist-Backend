@@ -1,22 +1,21 @@
 from fastapi import APIRouter, Depends, HTTPException, Query
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
-
 from app.api.dependencies import get_quiz_service
-from app.db.session import get_db
+from app.core.permissions import require_role
 from app.schemas.quiz import QuizResponse, QuizCreate, QuizUpdate
-from app.services import quiz_service
 from app.services.quiz_service import QuizService
 
 router = APIRouter(tags=["Quizzes"])
 
 
 @router.post("/quizzes", response_model=QuizResponse, status_code=201)
+@require_role(["ADMIN", "LECTURE"])
 async def create_quiz(quiz_request: QuizCreate, quiz_service: QuizService = Depends(get_quiz_service)):
     return await quiz_service.create_quiz(quiz_request)
 
 
 @router.get("/quizzes", response_model=List[QuizResponse])
+@require_role(["ADMIN"])
 async def get_quizzes(
     title: Optional[str] = Query(None),
     subject_id: Optional[int] = Query(None),
@@ -53,6 +52,7 @@ async def get_quiz(quiz_id: int, quiz_service: QuizService = Depends(get_quiz_se
 
 
 @router.put("/quizzes/{quiz_id}", response_model=QuizResponse)
+@require_role(["ADMIN", "LECTURE"])
 async def update_quiz(quiz_id: int, quiz_in: QuizUpdate, quiz_service: QuizService = Depends(get_quiz_service)):
     params = quiz_in.model_dump(exclude_unset=True)
     if not params:
@@ -65,6 +65,7 @@ async def update_quiz(quiz_id: int, quiz_in: QuizUpdate, quiz_service: QuizServi
 
 
 @router.delete("/quizzes/{quiz_id}", status_code=204)
+@require_role(["ADMIN", "LECTURE"])
 async def delete_quiz(quiz_id: int, quiz_service: QuizService = Depends(get_quiz_service)):
     deleted_quiz = await quiz_service.delete_quiz(quiz_id)
     if not deleted_quiz:
