@@ -2,16 +2,14 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List
 
 from sqlalchemy.ext.asyncio import AsyncSession
+
+from app.api.dependencies import get_subject_service
 from app.schemas.subject import SubjectRequest, SubjectResponse, SubjectDetailRespone
 from app.schemas.user import UserResponse
 from app.services.subject_service import SubjectService
 from app.db.session import get_db
 
 router = APIRouter(tags=["Subjects"])
-
-
-def get_subject_service(session: AsyncSession = Depends(get_db)):
-    return SubjectService(session)
 
 
 @router.post("/subjects", response_model=SubjectResponse)
