@@ -4,7 +4,10 @@ from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 import jwt
 from app.db.session import get_db
+from app.services.chat_session_service import ChatSessionService
 from app.services.document_service import DocumentService
+from app.services.rag_service import RagService
+from app.services.stats_service import StatsService
 from app.services.subject_service import SubjectService
 from app.services.user_service import UserService
 from app.services.quiz_service import QuizService
@@ -13,7 +16,7 @@ from app.core.config import settings
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/users/login")
 
 
-# Dependency 1: Khởi tạo UserService
+# KHỞI TẠO CÁC SERVICE
 def get_user_service(db: AsyncSession = Depends(get_db)) -> UserService:
     return UserService(db)
 
@@ -25,6 +28,15 @@ def get_subject_service(db: AsyncSession = Depends(get_db)) -> SubjectService:
 
 def get_quiz_service(db: AsyncSession = Depends(get_db)) -> 'QuizService':
     return QuizService(db)
+
+def get_rag_service(db: AsyncSession = Depends(get_db)) -> 'RagService':
+    return RagService(db)
+
+def get_chat_session_service(db: AsyncSession = Depends(get_db)) -> 'ChatSessionService':
+    return ChatSessionService(db)
+
+def get_stats_service(db: AsyncSession = Depends(get_db)) -> 'StatsService':
+    return StatsService(db)
 
 # Dependency 2: Lấy User hiện tại đang đăng nhập từ Token
 async def get_current_user(
