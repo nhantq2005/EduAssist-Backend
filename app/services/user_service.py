@@ -12,14 +12,11 @@ class UserService:
         self.session = session
 
     async def get_user_by_id(self, user_id: int) -> User | None:
-        # Cách viết mới: Tạo statement trước, execute sau
-        stmt = select(User).where(User.id == user_id)
-        result = await self.session.execute(stmt)
-
-        # Lấy ra phần tử đầu tiên, hoặc trả về None nếu không tìm thấy
+        stm = select(User).where(User.id == user_id)
+        result = await self.session.execute(stm)
         return result.scalar_one_or_none()
 
-    async def create_user(self, user_data: dict) -> User:
+    async def create_user(self, user_data: dict):
         try:
             hashed_password = get_password_hash(
                 user_data["password"]
@@ -44,28 +41,25 @@ class UserService:
             await self.session.rollback()
             raise
 
-    async def get_user_by_username(self, username: str) -> User | None:
-        stmt = select(User).where(User.username == username)
-        result = await self.session.execute(stmt)
+    async def get_user_by_username(self, username: str):
+        stm = select(User).where(User.username == username)
+        result = await self.session.execute(stm)
         return result.scalar_one_or_none()
 
     async def delete_user(self, user: User) -> None:
-        await self.session.delete(user)  # Đánh dấu xóa
-        await self.session.commit()  # Thực thi xóa
+        await self.session.delete(user)
+        await self.session.commit()
 
-    async def login(self, username: str, password: str) -> User | None:
-        # 1. Chỉ query theo username
-        stmt = select(User).where(User.username == username)
-        result = await self.session.execute(stmt)
+    async def login(self, username: str, password: str):
+        stm = select(User).where(User.username == username)
+        result = await self.session.execute(stm)
         user = result.scalar_one_or_none()
 
-        # 2. Kiểm tra user tồn tại và so sánh mật khẩu
         if user and verify_password(password, user.password):
             return user
         return None
 
-    async def get_user_by_username_or_email(self, username: str, email: str,
-    ) -> User | None:
+    async def get_user_by_username_or_email(self, username: str, email: str):
         stmt = select(User).where(
             or_(
                 User.username == username,

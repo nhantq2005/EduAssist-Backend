@@ -17,7 +17,7 @@ class DocumentService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create_document(self, document_request: DocumentRequest, file: UploadFile,) -> Document:
+    async def create_document(self, document_request: DocumentRequest, file: UploadFile, ) -> Document:
         if not file.filename:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Tên file không hợp lệ")
 
@@ -32,7 +32,7 @@ class DocumentService:
         try:
             await file.seek(0)
 
-            upload_result = await upload_file_to_cloudinary(file=file,folder="documents")
+            upload_result = await upload_file_to_cloudinary(file=file, folder="documents")
 
             file_url = upload_result.get("secure_url")
 
@@ -68,23 +68,24 @@ class DocumentService:
         return result.scalars().first()
 
     async def get_all_documents(self, params: dict) -> List[Document]:
-        skip = params.get('skip', 0)
+        offset = params.get('offset', 0)
         limit = params.get('limit', 100)
 
         stm = select(Document)
 
-        if 'title' in params:
+        if params.get('title') is not None:
             stm = stm.where(Document.title.ilike(f"%{params['title']}%"))
 
-        if 'created_date' in params:
+        if params.get('created_date') is not None:
             stm = stm.where(cast(Document.created_date, Date) == params['created_date'])
 
-        if 'start_date' in params:
+        if params.get('start_date') is not None:
             stm = stm.where(cast(Document.created_date, Date) >= params['start_date'])
-        if 'end_date' in params:
+
+        if params.get('end_date') is not None:
             stm = stm.where(cast(Document.created_date, Date) <= params['end_date'])
 
-        stm = stm.offset(skip).limit(limit)
+        stm = stm.offset(offset).limit(limit)
         result = await self.session.execute(stm)
         return list(result.scalars().all())
 
@@ -97,7 +98,8 @@ class DocumentService:
         db_document = await self.get_document_by_id(document_id)
 
         if db_document is None:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,detail=f"Không tìm thấy document với id: {document_id}")
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail=f"Không tìm thấy document với id: {document_id}")
 
         try:
             update_data = document_request.model_dump(
@@ -165,7 +167,10 @@ class DocumentService:
             await self.session.rollback()
             raise e
 
-    async def get_documents_by_subject_id(self, subject_id: int) -> List[Document]:
+    async def get_documents_by_subject_id(self, subject_id: int, params: dict) -> List[Document]:
+        offset = params.get('offset', 0)
+        limit = params.get('limit', 100)
         stm = select(Document).where(Document.subject_id == subject_id)
+        stm = stm.offset(offset).limit(limit)
         result = await self.session.execute(stm)
         return list(result.scalars().all())
