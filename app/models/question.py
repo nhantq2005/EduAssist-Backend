@@ -9,8 +9,8 @@ class Question(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     question: Mapped[str] = mapped_column(String, nullable=False)
-    explaination: Mapped[str] = mapped_column(String, nullable=False)
-    score: Mapped[float] = mapped_column(Double, nullable=True)
+    explaination: Mapped[str | None] = mapped_column(String, nullable=True)
+    score: Mapped[float | None] = mapped_column(Double, nullable=True)
     created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     quiz_id: Mapped[int] = mapped_column(ForeignKey("quizzes.id"), nullable=False)
 
