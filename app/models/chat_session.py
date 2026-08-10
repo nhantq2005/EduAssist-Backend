@@ -16,4 +16,7 @@ class ChatSession(Base):
 
     user: Mapped["User"] = relationship(back_populates="chat_sessions")
 
-    chat_messages: Mapped[set["ChatMessage"]] = relationship(back_populates="chat_session")
+    chat_messages: Mapped[list["ChatMessage"]] = relationship(back_populates="chat_session")
+
+    def __str__(self) -> str:
+        return f"{self.title}"

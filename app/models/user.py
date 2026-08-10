@@ -27,9 +27,12 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
-    documents: Mapped[set["Document"]] = relationship(back_populates="lecturer")
-    attempt_quizzes: Mapped[set["QuizAttempt"]] = relationship(back_populates="user")
-    subjects: Mapped[set["Subject"]] = relationship(back_populates="lecturer")
-    enrollments: Mapped[set["Enrollment"]] = relationship(back_populates="user")
-    notification_reads: Mapped[set["NotificationRead"]] = relationship(back_populates="user")
-    chat_sessions: Mapped[set["ChatSession"]] = relationship(back_populates="user")
+    documents: Mapped[list["Document"]] = relationship(back_populates="lecturer")
+    attempt_quizzes: Mapped[list["QuizAttempt"]] = relationship(back_populates="user")
+    subjects: Mapped[list["Subject"]] = relationship(back_populates="lecturer")
+    enrollments: Mapped[list["Enrollment"]] = relationship(back_populates="user")
+    notification_reads: Mapped[list["NotificationRead"]] = relationship(back_populates="user")
+    chat_sessions: Mapped[list["ChatSession"]] = relationship(back_populates="user")
+
+    def __str__(self):
+        return self.name

@@ -29,4 +29,7 @@ class Document(Base):
     lecturer: Mapped["User"] = relationship(back_populates="documents")
     subject: Mapped["Subject"] = relationship(back_populates="documents")
 
-    document_chunks: Mapped[set["DocumentChunk"]] = relationship(back_populates="document")
+    document_chunks: Mapped[list["DocumentChunk"]] = relationship(back_populates="document")
+
+    def __str__(self):
+        return self.title

@@ -33,8 +33,11 @@ class Quiz(Base):
 
     subject:Mapped["Subject"] = relationship(back_populates="quizzes")
 
-    quiz_attempts: Mapped[set["QuizAttempt"]] = relationship(back_populates="quiz")
-    questions: Mapped[set["Question"]] = relationship(back_populates="quiz")
+    quiz_attempts: Mapped[list["QuizAttempt"]] = relationship(back_populates="quiz")
+    questions: Mapped[list["Question"]] = relationship(back_populates="quiz")
+
+    def __str__(self) -> str:
+        return f"{self.title}"
 
 
 

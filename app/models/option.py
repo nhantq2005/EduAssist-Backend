@@ -14,5 +14,5 @@ class Option(Base):
 
     question: Mapped["Question"] = relationship(back_populates="options")
 
-    user_answers: Mapped[set["UserAnswer"]] = relationship(back_populates="option")
+    user_answers: Mapped[list["UserAnswer"]] = relationship(back_populates="option")
 

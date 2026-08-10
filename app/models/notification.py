@@ -16,5 +16,5 @@ class Notification(Base):
 
     subject: Mapped["Subject"] = relationship(back_populates="notifications")
 
-    notification_reads: Mapped[set["NotificationRead"]] = relationship(back_populates="notification")
+    notification_reads: Mapped[list["NotificationRead"]] = relationship(back_populates="notification")
 
