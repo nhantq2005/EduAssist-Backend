@@ -1,8 +1,9 @@
 from datetime import date
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Form
-from app.api.dependencies import get_document_service
+from app.api.dependencies import get_document_service, get_current_user
 from app.core.permissions import require_role
+from app.models import User
 from app.schemas.document import DocumentRequest, DocumentResponse, DocumentUpdateRequest
 from fastapi import UploadFile, File, BackgroundTasks
 from app.services.document_service import DocumentService
@@ -23,22 +24,20 @@ router = APIRouter(tags=["documents"])
 async def create_document(
         background_tasks: BackgroundTasks,
         title: str = Form(...),
-        lecturer_id: int = Form(...),
         subject_id: int = Form(...),
         file: UploadFile = File(...),
-        document_service: DocumentService = Depends(get_document_service)):
+        current_user: User = Depends(get_current_user),
+        document_service: DocumentService = Depends(get_document_service)
+):
     document_request = DocumentRequest(
         title=title,
-        lecturer_id=lecturer_id,
+        lecturer_id=current_user.id,
         subject_id=subject_id,
     )
-
     document = await document_service.create_document(document_request=document_request, file=file)
-
     await file.seek(0)
     file_bytes = await file.read()
     background_tasks.add_task(run_pipeline_task, document.id, file_bytes, file.filename)
-
     return document
 
 
@@ -75,7 +74,10 @@ async def get_all_documents(
 
 
 @router.get("/documents/{document_id}", response_model=DocumentResponse)
-async def get_document_by_id(document_id: int, document_service: DocumentService = Depends(get_document_service)):
+async def get_document_by_id(
+        document_id: int,
+        document_service: DocumentService = Depends(get_document_service)
+):
     document = await document_service.get_document_by_id(document_id)
     if not document:
         raise HTTPException(status_code=404, detail="Không tìm thấy tài liệu")
@@ -87,14 +89,14 @@ async def get_document_by_id(document_id: int, document_service: DocumentService
 async def update_document(
         document_id: int,
         title: str | None = Form(None),
-        lecturer_id: int | None = Form(None),
         subject_id: int | None = Form(None),
         file: UploadFile | None = File(None),
+        current_user: User = Depends(get_current_user),
         document_service: DocumentService = Depends(get_document_service),
 ):
     document_request = DocumentUpdateRequest(
         title=title,
-        lecturer_id=lecturer_id,
+        lecturer_id=current_user.id,
         subject_id=subject_id,
     )
     document = await document_service.update_document(document_id, document_request, file)
@@ -105,8 +107,11 @@ async def update_document(
 
 @router.delete("/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
 @require_role(["ADMIN", "LECTURE"])
-async def delete_document_api(document_id: int, document_service: DocumentService = Depends(get_document_service)):
-    success = await document_service.delete_document(document_id)
-    if not success:
+async def delete_document(
+        document_id: int,
+        document_service: DocumentService = Depends(get_document_service)
+):
+    document = await document_service.delete_document(document_id)
+    if not document:
         raise HTTPException(status_code=404, detail="Không tìm thấy tài liệu để xóa")
     return None
