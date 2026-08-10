@@ -17,27 +17,32 @@ async def create_quiz(quiz_request: QuizCreate, quiz_service: QuizService = Depe
 @router.get("/quizzes", response_model=List[QuizResponse])
 @require_role(["ADMIN"])
 async def get_quizzes(
-    title: Optional[str] = Query(None),
-    subject_id: Optional[int] = Query(None),
-    difficulty_level: Optional[str] = Query(None),
-    skip: int = Query(0, ge=0),
-    limit: int = Query(100, ge=1),
-    quiz_service: QuizService = Depends(get_quiz_service)
+        title: Optional[str] = None,
+        subject_id: Optional[int] = None,
+        difficulty_level: Optional[str] = None,
+        offset: Optional[int] = None,
+        limit: Optional[int] = None,
+        quiz_service: QuizService = Depends(get_quiz_service)
 ):
     params = {
         "title": title,
         "subject_id": subject_id,
         "difficulty_level": difficulty_level,
-        "skip": skip,
+        "offset": offset,
         "limit": limit
     }
-    # Remove None values
-    params = {k: v for k, v in params.items() if v is not None}
     return await quiz_service.get_quizzes(params)
 
+
 @router.get("/subjects/{subject_id}/quizzes", response_model=List[QuizResponse])
-async def get_quizzes_by_subject(subject_id: int, quiz_service: QuizService = Depends(get_quiz_service)):
-    quizzes = await quiz_service.get_quiz_by_subject(subject_id)
+async def get_quizzes_by_subject(
+        subject_id: int,
+        limit: Optional[int] = 100,
+        offset: Optional[int] = 0,
+        quiz_service: QuizService = Depends(get_quiz_service)
+):
+    params = {limit: limit, offset: offset}
+    quizzes = await quiz_service.get_quiz_by_subject(subject_id, params)
     if not quizzes:
         raise HTTPException(status_code=404, detail="Không tìm thấy quiz nào cho môn học này")
     return quizzes

@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List
+from typing import List, Optional
 
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -18,13 +18,22 @@ async def create_subject(subject: SubjectRequest, subject_service: SubjectServic
 
 
 @router.get("/subjects", response_model=List[SubjectResponse])
-async def read_subjects(skip: int = 0, limit: int = 100,
-                        subject_service: SubjectService = Depends(get_subject_service)):
-    return await subject_service.get_subjects(skip=skip, limit=limit)
+async def get_subjects(
+        offset: Optional[int] = 0,
+        limit: Optional[int] = 100,
+        name: Optional[str] = None,
+        subject_service: SubjectService = Depends(get_subject_service)
+):
+    params = {
+        "offset": offset,
+        "limit": limit,
+        "name": name
+    }
+    return await subject_service.get_subjects(params)
 
 
 @router.get("/subjects/{subject_id}", response_model=SubjectDetailRespone)
-async def read_subject(subject_id: int, subject_service: SubjectService = Depends(get_subject_service)):
+async def get_subject(subject_id: int, subject_service: SubjectService = Depends(get_subject_service)):
     db_subject = await subject_service.get_subject_by_id(subject_id=subject_id)
     if db_subject is None:
         raise HTTPException(status_code=404, detail="Subject not found")
@@ -48,11 +57,10 @@ async def delete_subject(
         subject_service: SubjectService = Depends(get_subject_service)
 ):
     success = await subject_service.delete_subject(subject_id=subject_id)
-
     if not success:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail="Subject not found"
+            detail="Không tìm thấy môn học"
         )
     return None
 
@@ -60,9 +68,17 @@ async def delete_subject(
 @router.get("/users/{lecture_id}/subjects", response_model=SubjectResponse)
 async def get_subjects_by_lecture(
         lecture_id: int,
+        offset: Optional[int] = 0,
+        limit: Optional[int] = 100,
+        name: Optional[str] = None,
         subject_service: SubjectService = Depends(get_subject_service)
 ):
-    subjects = subject_service.get_subjects_by_lecturer(lecture_id)
+    params = {
+        "offset": offset,
+        "limit": limit,
+        "name": name
+    }
+    subjects = subject_service.get_subjects_by_lecturer(lecture_id, params)
     if subjects is None:
-        raise HTTPException(status_code=404, detail="User not found")
+        raise HTTPException(status_code=404, detail="Không tim thấy giảng viên")
     return subjects

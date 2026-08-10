@@ -21,28 +21,29 @@ class QuizService:
             await self.session.rollback()
             raise HTTPException(status_code=400, detail=str(e))
 
-
     async def get_quizzes(self, params: dict) -> list[Quiz]:
-        query = select(Quiz)
+        stm = select(Quiz)
 
-        if 'title' in params:
-            query = query.where(Quiz.title.ilike(f"%{params['title']}%"))
-        if 'subject_id' in params:
-            query = query.where(Quiz.subject_id == params['subject_id'])
-        if 'difficulty_level' in params:
-            query = query.where(Quiz.difficulty_level == params['difficulty_level'])
+        if params.get('title') is not None:
+            stm = stm.where(Quiz.title.ilike(f"%{params['title']}%"))
+        if params.get('subject_id') is not None:
+            stm = stm.where(Quiz.subject_id == params['subject_id'])
+        if params.get('difficulty_level') is not None:
+            stm = stm.where(Quiz.difficulty_level == params['difficulty_level'])
 
-        skip = params.get('skip', 0)
+        offset = params.get('offset', 0)
         limit = params.get('limit', 100)
-        query = query.offset(skip).limit(limit)
+        stm = stm.offset(offset).limit(limit)
 
-        result = await self.session.execute(query)
+        result = await self.session.execute(stm)
 
         return list(result.scalars().all())
 
-    async def get_quiz_by_subject(self, subject_id: int) -> list[Quiz]:
-        query = select(Quiz).where(Quiz.subject_id == subject_id)
-        result = await self.session.execute(query)
+    async def get_quiz_by_subject(self, subject_id: int, params: dict):
+        limit = params.get('limit', 100)
+        offset = params.get('offset', 0)
+        stm = select(Quiz).where(Quiz.subject_id == subject_id).offset(offset).limit(limit)
+        result = await self.session.execute(stm)
         return list(result.scalars().all())
 
     async def get_quiz_by_id(self, quiz_id: int) -> Quiz:

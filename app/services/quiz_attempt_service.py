@@ -1,5 +1,6 @@
 from typing import List
 
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio.session import AsyncSession
 
 from app.schemas.quiz_attempt import QuizAttemptCreate
@@ -24,8 +25,9 @@ class QuizAttemptService:
         quiz_attempt = await self.session.get(QuizAttempt, quiz_attempt_id)
         return quiz_attempt
 
-    async def get_all_quiz_attempts(self) -> List[QuizAttempt]:
-        result = await self.session.execute(
-            select(QuizAttempt)
-        )
-        return result.scalars().all()
+    async def get_all_quiz_attempts(self, params:dict):
+        limit = params.get('limit', 100)
+        offset = params.get('offset', 0)
+        stm = select(QuizAttempt).offset(offset).limit(limit)
+        result = await self.session.execute(stm)
+        return list(result.scalars().all())

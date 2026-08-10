@@ -1,4 +1,5 @@
-from typing import List
+from datetime import date
+from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, status, Form
 from app.api.dependencies import get_document_service
 from app.core.permissions import require_role
@@ -8,21 +9,24 @@ from app.services.document_service import DocumentService
 from app.rag.processing_pipeline import process_document_pipeline
 from app.db.session import AsyncSessionLocal
 
+
 async def run_pipeline_task(document_id: int, file_bytes: bytes, file_name: str):
     async with AsyncSessionLocal() as session:
         await process_document_pipeline(document_id, file_bytes, file_name, session)
 
+
 router = APIRouter(tags=["documents"])
+
 
 @router.post("/documents", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
 @require_role(["ADMIN", "LECTURE"])
 async def create_document(
-    background_tasks: BackgroundTasks,
-    title: str = Form(...),
-    lecturer_id: int = Form(...),
-    subject_id: int = Form(...),
-    file: UploadFile = File(...),
-    document_service: DocumentService = Depends(get_document_service)):
+        background_tasks: BackgroundTasks,
+        title: str = Form(...),
+        lecturer_id: int = Form(...),
+        subject_id: int = Form(...),
+        file: UploadFile = File(...),
+        document_service: DocumentService = Depends(get_document_service)):
     document_request = DocumentRequest(
         title=title,
         lecturer_id=lecturer_id,
@@ -37,22 +41,36 @@ async def create_document(
 
     return document
 
+
 @router.get("/subjects/{subject_id}/documents", response_model=List[DocumentResponse])
-async def get_documents_by_subject(subject_id: int, document_service: DocumentService = Depends(get_document_service)):
-    documents = await document_service.get_documents_by_subject(subject_id)
+async def get_documents_by_subject(
+        subject_id: int,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+        document_service: DocumentService = Depends(get_document_service)
+):
+    params = {
+        "limit": limit,
+        "offset": offset,
+    }
+    documents = await document_service.get_documents_by_subject_id(subject_id, params)
     return documents
 
 
-
 @router.get("/documents", response_model=List[DocumentResponse])
-async def list_documents(params: dict, document_service: DocumentService = Depends(get_document_service)):
+async def get_all_documents(
+        title: Optional[str] = None,
+        created_date: Optional[date] = None,
+        limit: Optional[int] = None,
+        offset: Optional[int] = None,
+        document_service: DocumentService = Depends(get_document_service)
+):
     params = {
-        "title": params.get("title"),
-        "created_date": params.get("created_date"),
-        "skip": params.get("skip"),
-        "limit": params.get("limit"),
+        "title": title,
+        "created_date": created_date,
+        "limit": limit,
+        "offset": offset,
     }
-    params = {k: v for k, v in params.items() if v is not None}
     return await document_service.get_all_documents(params)
 
 
@@ -67,12 +85,12 @@ async def get_document_by_id(document_id: int, document_service: DocumentService
 @router.put("/documents/{document_id}", response_model=DocumentResponse)
 @require_role(["ADMIN", "LECTURE"])
 async def update_document(
-    document_id: int,
-    title: str | None = Form(None),
-    lecturer_id: int | None = Form(None),
-    subject_id: int | None = Form(None),
-    file: UploadFile | None = File(None),
-    document_service: DocumentService = Depends(get_document_service),
+        document_id: int,
+        title: str | None = Form(None),
+        lecturer_id: int | None = Form(None),
+        subject_id: int | None = Form(None),
+        file: UploadFile | None = File(None),
+        document_service: DocumentService = Depends(get_document_service),
 ):
     document_request = DocumentUpdateRequest(
         title=title,

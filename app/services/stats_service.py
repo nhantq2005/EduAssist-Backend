@@ -1,7 +1,5 @@
 from sqlalchemy import func, select
-from sqlalchemy.engine import row
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models import Document, Subject, Quiz, User
 from app.models.user import UserRole
 
@@ -36,12 +34,10 @@ class StatsService:
         return total_student.scalar()
 
     async def count_documents_by_subject(self):
-        # JOIN Document với Subject, select Subject.id, Subject.title và Count
         stm = (
             select(
                 Subject.id.label("subject_id"),
                 Subject.name.label("subject_title"),
-                # Giả sử bảng Subject có cột title hoặc name
                 func.count(Document.id).label("document_count")
             )
             .outerjoin(Document, Subject.id == Document.subject_id)
