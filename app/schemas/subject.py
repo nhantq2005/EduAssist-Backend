@@ -10,7 +10,7 @@ class SubjectRequest(BaseModel):
     name: str
     code: str
     description: str
-    lecturer_id: int
+
 
 class SubjectResponse(SubjectRequest):
     id: int
