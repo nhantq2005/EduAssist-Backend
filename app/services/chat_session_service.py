@@ -1,23 +1,26 @@
+from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from datetime import datetime
+from sqlalchemy.orm import selectinload
 from app.models import ChatSession
 from fastapi import HTTPException, status
+
+from app.schemas.chat_session import ChatSessionRequest
+
 
 class ChatSessionService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create_chat_session(self, user_id: int, title: str = "Đoạn chat mới"):
-        new_session = ChatSession(
-            user_id=user_id,
-            title=title,
-            created_date=datetime.now(),
-            updated_date=datetime.now()
+    async def create_chat_session(self, chat_session_request: ChatSessionRequest, user_id: int):
+        session = ChatSession(
+            **chat_session_request.model_dump(),
+            user_id=user_id
         )
-        self.session.add(new_session)
+        self.session.add(session)
         await self.session.commit()
-        await self.session.refresh(new_session)
-        return new_session
+        await self.session.refresh(session)
+        return session
 
     async def delete_chat_session(self, session_id: int):
         chat_session = await self.session.get(ChatSession, session_id)
@@ -36,3 +39,11 @@ class ChatSessionService:
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                 detail=f"Lỗi khi xóa đoạn chat: {str(e)}"
             )
+
+    async def get_chat_session_by_user_id(self, user_id: int, params: dict):
+        limit = params.get("limit", 100)
+        offset = params.get("offset", 0)
+        stm = (select(ChatSession).options(selectinload(ChatSession.user)).where(ChatSession.user_id == user_id))
+        stm = stm.offset(offset).limit(limit)
+        result = await self.session.execute(stm)
+        return result.scalars().all()
