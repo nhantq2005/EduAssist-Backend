@@ -58,7 +58,11 @@ async def get_quiz(quiz_id: int, quiz_service: QuizService = Depends(get_quiz_se
 
 @router.put("/quizzes/{quiz_id}", response_model=QuizResponse)
 @require_role(["ADMIN", "LECTURE"])
-async def update_quiz(quiz_id: int, quiz_in: QuizUpdate, quiz_service: QuizService = Depends(get_quiz_service)):
+async def update_quiz(
+        quiz_id: int,
+        quiz_in: QuizUpdate,
+        quiz_service: QuizService = Depends(get_quiz_service)
+):
     params = quiz_in.model_dump(exclude_unset=True)
     if not params:
         raise HTTPException(status_code=400, detail="Không có dữ liệu để cập nhật")

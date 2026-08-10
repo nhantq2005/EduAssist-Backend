@@ -18,6 +18,6 @@ class DocumentChunk(Base):
 
     document: Mapped["Document"] = relationship(back_populates="document_chunks")
 
-    chat_citations: Mapped[set["ChatCitation"]] = relationship(back_populates="document_chunk")
+    chat_citations: Mapped[list["ChatCitation"]] = relationship(back_populates="document_chunk")
 
 

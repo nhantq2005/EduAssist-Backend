@@ -40,9 +40,7 @@ class DocumentService:
                 raise RuntimeError("Cloudinary không trả về secure_url")
 
             document = Document(
-                title=document_request.title,
-                lecturer_id=document_request.lecturer_id,
-                subject_id=document_request.subject_id,
+                **document_request.model_dump(),
                 file_url=file_url,
                 file_type=extension.removeprefix("."),
                 file_name=file.filename,

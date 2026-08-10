@@ -27,26 +27,28 @@ class SubjectService:
         result = await self.session.execute(stm)
         return result.scalars().all()
 
-    async def create_subject(self, subject: SubjectRequest):
+    async def create_subject(self, subject_request: SubjectRequest,lecturer_id: int):
         try:
-            db_subject = Subject(**subject.model_dump())
-            self.session.add(db_subject)
+            subject = Subject(**subject_request.model_dump())
+            subject.lecturer_id = lecturer_id
+            self.session.add(subject)
             await self.session.commit()
-            return await self.get_subject_by_id(db_subject.id)
+            return await self.get_subject_by_id(subject.id)
         except Exception as e:
             await self.session.rollback()
             raise e
 
-    async def update_subject(self, subject_id: int, subject: SubjectRequest):
+    async def update_subject(self, subject_id: int, subject_request: SubjectRequest, lecturer_id: int):
         try:
-            db_subject = await self.get_subject_by_id(subject_id)
-            if db_subject:
-                update_data = subject.model_dump(exclude_unset=True)
+            subject = await self.get_subject_by_id(subject_id)
+            if subject:
+                update_data = subject_request.model_dump(exclude_unset=True)
                 for key, value in update_data.items():
-                    setattr(db_subject, key, value)
+                    setattr(subject, key, value)
+                subject.lecturer_id = lecturer_id
                 await self.session.commit()
-                await self.session.refresh(db_subject)
-            return db_subject
+                await self.session.refresh(subject)
+            return subject
         except Exception as e:
             await self.session.rollback()
             raise e

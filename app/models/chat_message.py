@@ -1,6 +1,6 @@
-from sqlalchemy import Integer, ForeignKey
+from datetime import datetime
+from sqlalchemy import Integer, ForeignKey, DateTime
 from sqlalchemy.orm import Mapped, mapped_column, relationship
-
 from app.models.base import Base
 
 
@@ -9,8 +9,9 @@ class ChatMessage(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     question: Mapped[str] = mapped_column(nullable=False)
     answer: Mapped[str] = mapped_column(nullable=False)
+    # created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     chat_session_id: Mapped[int] = mapped_column(ForeignKey("chat_sessions.id"), nullable=False)
 
     chat_session: Mapped["ChatSession"] = relationship(back_populates="chat_messages")
 
-    chat_citations: Mapped[set["ChatCitation"]] = relationship(back_populates="chat_message")
+    chat_citations: Mapped[list["ChatCitation"]] = relationship(back_populates="chat_message")

@@ -2,11 +2,11 @@ from datetime import datetime
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
 
-class ChatSessionCreate(BaseModel):
+class ChatSessionRequest(BaseModel):
     title: str
-    user_id: int
-    created_date: datetime
-    updated_date: datetime
+    # user_id: int
+    # created_date: datetime
+    # updated_date: datetime
 
 class ChatSessionUpdate(BaseModel):
     title: Optional[str] = None

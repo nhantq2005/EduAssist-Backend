@@ -10,12 +10,15 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
-async def register_user(user_in: UserCreate, user_service: UserService = Depends(get_user_service)) -> User:
+async def register_user(
+        user_in: UserCreate,
+        user_service: UserService = Depends(get_user_service)
+):
     username = user_in.username.strip().lower()
     email = str(user_in.email).strip().lower()
 
     existing_user = (
-        await user_service.get_user_by_username_or_email(username, email,)
+        await user_service.get_user_by_username_or_email(username, email)
     )
 
     if existing_user:
@@ -32,7 +35,10 @@ async def register_user(user_in: UserCreate, user_service: UserService = Depends
 
 
 @router.post("/login")
-async def login(login_data: UserLogin, user_service: UserService = Depends(get_user_service)) -> Any:
+async def login(
+        login_data: UserLogin,
+        user_service: UserService = Depends(get_user_service)
+):
     user = await user_service.login(login_data.username, login_data.password)
 
     if not user:

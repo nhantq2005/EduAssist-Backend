@@ -5,7 +5,7 @@ from app.services.rag_service import RagService
 
 router = APIRouter(tags=["Chat"])
 
-@router.post("/stream")
+@router.post("/chat/stream")
 async def chat_stream(request: ChatMessageRequest, rag_service : RagService = Depends(get_rag_service)):
     # return StreamingResponse(
     #     stream_answer(request.question, request.chat_session_id, db),

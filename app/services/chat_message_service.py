@@ -10,12 +10,8 @@ class ChatMessageService:
 
     async def create_chat_message(self, chat_message_create: ChatMessageCreate):
         try:
-            new_message = ChatMessage(
-                question=chat_message_create.question,
-                answer=chat_message_create.answer,
-                chat_session_id=chat_message_create.chat_session_id
-            )
-            self.session.add(new_message)
+            message = ChatMessage(**chat_message_create.model_dump())
+            self.session.add(message)
             await self.session.commit()
         except Exception as e:
             print("Lỗi khi lưu DB:", e)
