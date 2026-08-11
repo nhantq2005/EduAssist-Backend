@@ -1,11 +1,7 @@
 from fastapi import APIRouter, Depends, HTTPException
-from langchain_community.tools.connery import service
-from sqlalchemy.ext.asyncio import AsyncSession
 from typing import List, Optional
-
 from app.api.dependencies import get_question_service, get_current_user
 from app.core.permissions import require_role
-from app.db.session import get_db
 from app.models import User
 from app.schemas.question import QuestionRequest, QuestionResponse
 from app.services.question_service import QuestionService
@@ -22,7 +18,7 @@ router = APIRouter(tags=["Questions"])
 #     return await service.create_question(question_request=question)
 
 @router.post("/questions", response_model=List[QuestionResponse])
-@require_role(["ADMIN", "LECTURER", "STUDENT"])
+@require_role(["ADMIN", "LECTURER"])
 async def create_questions(
         questions_request: List[QuestionRequest],
         current_user: User = Depends(get_current_user),
@@ -60,12 +56,12 @@ async def get_question_by_id(
 ):
     db_question = await service.get_question_by_id(question_id=question_id)
     if db_question is None:
-        raise HTTPException(status_code=404, detail="Question not found")
+        raise HTTPException(status_code=404, detail="Không tìm thấy câu hỏi")
     return db_question
 
 
 @router.put("/questions/{question_id}", response_model=QuestionResponse)
-@require_role(["ADMIN", "LECTURER", "STUDENT"])
+@require_role(["ADMIN", "LECTURER"])
 async def update_question(
         question_id: int,
         question: QuestionRequest,
@@ -73,7 +69,7 @@ async def update_question(
 ):
     db_question = await service.update_question(question_id=question_id, question_request=question)
     if db_question is None:
-        raise HTTPException(status_code=404, detail="Question not found")
+        raise HTTPException(status_code=404, detail="Không tìm thấy câu hỏi")
     return db_question
 
 
@@ -85,5 +81,5 @@ async def delete_question(
 ):
     success = await service.delete_question(question_id=question_id)
     if not success:
-        raise HTTPException(status_code=404, detail="Question not found")
-    return {"message": "Question deleted successfully"}
+        raise HTTPException(status_code=404, detail="Không tìm thấy câu hỏi")
+    return {"message": "Xóa câu hỏi thành công"}
