@@ -9,7 +9,7 @@ from app.services.chat_session_service import ChatSessionService
 router = APIRouter(tags=["ChatSession"])
 
 
-@router.post("/chat-sessions", response_model=ChatSessionResponse, status_code=200)
+@router.post("/chat-sessions", response_model=ChatSessionResponse, status_code=201)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def create_chat_session(
         chat_session_request: ChatSessionRequest,
