@@ -16,7 +16,7 @@ class SubjectService:
         return result.scalar_one_or_none()
 
     async def get_subjects(self, params: dict):
-        stm = select(Subject)
+        stm = (select(Subject).options(selectinload(Subject.lecturer)))
 
         if params.get("name") is not None:
             stm = stm.where(Subject.name.ilike(f"%{params['name']}%"))

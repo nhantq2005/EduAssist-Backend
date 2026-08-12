@@ -1,6 +1,7 @@
 from typing import Optional, List
 from fastapi import APIRouter, Depends
 from app.api.dependencies import get_chat_session_service, get_current_user
+from app.core.permissions import require_role
 from app.models.user import User
 from app.schemas.chat_session import ChatSessionResponse, ChatSessionRequest
 from app.services.chat_session_service import ChatSessionService
@@ -8,7 +9,8 @@ from app.services.chat_session_service import ChatSessionService
 router = APIRouter(tags=["ChatSession"])
 
 
-@router.post("/chat-sessions", response_model=ChatSessionResponse, status_code=200)
+@router.post("/chat-sessions", response_model=ChatSessionResponse, status_code=201)
+@require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def create_chat_session(
         chat_session_request: ChatSessionRequest,
         current_user: User = Depends(get_current_user),
@@ -18,6 +20,7 @@ async def create_chat_session(
 
 
 @router.get("/chat-sessions", response_model=List[ChatSessionResponse], status_code=200)
+@require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def get_chat_sessions_by_user_id(
         limit: Optional[int] = None,
         offset: Optional[int] = None,

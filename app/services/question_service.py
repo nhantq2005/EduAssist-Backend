@@ -40,6 +40,33 @@ class QuestionService:
         )
         return result.scalars().first()
 
+    async def create_questions(self, list_questions_request: List[QuestionRequest]) -> list[QuestionRequest]:
+        questions = []
+        for question_request in list_questions_request:
+            question_data = question_request.model_dump(exclude={"options"})
+            db_question = Question(**question_data)
+            self.session.add(db_question)
+            questions.append((db_question, question_request.options))
+
+        await self.session.flush()
+
+        for db_question, options in questions:
+            for opt in options:
+                opt_data = opt.model_dump(exclude={"question_id"})
+                db_option = Option(**opt_data, question_id=db_question.id)
+                self.session.add(db_option)
+
+        await self.session.commit()
+
+        question_ids = [q[0].id for q in questions]
+        result = await self.session.execute(
+            select(Question)
+            .options(selectinload(Question.options))
+            .where(Question.id.in_(question_ids))
+        )
+        return list(result.scalars().all())
+
+
     async def get_question_by_quiz(self, quiz_id: int, params:dict):
         limit = params.get("limit", 100)
         offset = params.get("offset", 0)
