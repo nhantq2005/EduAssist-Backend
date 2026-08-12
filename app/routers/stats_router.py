@@ -10,7 +10,7 @@ router = APIRouter(prefix="/stats", tags=["Stats"])
 
 
 @router.get("/count-docs-by-lecture/{lecture_id}", response_model=int)
-@require_role(["ADMIN", "LECTURE"])
+@require_role(["ADMIN", "LECTURER"])
 async def count_document_by_lecture(
         lecture_id: int,
         stats_service: StatsService = Depends(get_stats_service)
@@ -19,7 +19,7 @@ async def count_document_by_lecture(
 
 
 @router.get("/count-subjects-by-lecture/{lecture_id}", response_model=int)
-@require_role(["ADMIN", "LECTURE"])
+@require_role(["ADMIN", "LECTURER"])
 async def count_subject_by_lecture(
         lecture_id: int,
         stats_service: StatsService = Depends(get_stats_service)
@@ -28,7 +28,7 @@ async def count_subject_by_lecture(
 
 
 @router.get("/count-quizzes-by-subject/{subject_id}", response_model=int)
-@require_role(["ADMIN", "LECTURE"])
+@require_role(["ADMIN", "LECTURER"])
 async def count_quiz_by_subject(
         subject_id: int,
         stats_service: StatsService = Depends(get_stats_service)
@@ -49,6 +49,6 @@ async def count_students(stats_service: StatsService = Depends(get_stats_service
 
 
 @router.get("/stats-docs-by-subject", response_model=List[DocumentCountBySubjectResponse])
-@require_role(["ADMIN", "LECTURE"])
+@require_role(["ADMIN", "LECTURER"])
 async def count_documents_by_subject(stats_service: StatsService = Depends(get_stats_service)):
     return await stats_service.count_documents_by_subject()

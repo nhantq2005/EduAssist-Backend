@@ -10,7 +10,7 @@ router = APIRouter(tags=["ChatSession"])
 
 
 @router.post("/chat-sessions", response_model=ChatSessionResponse, status_code=200)
-@require_role(["ADMIN", "LECTURE", "STUDENT"])
+@require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def create_chat_session(
         chat_session_request: ChatSessionRequest,
         current_user: User = Depends(get_current_user),
@@ -20,7 +20,7 @@ async def create_chat_session(
 
 
 @router.get("/chat-sessions", response_model=List[ChatSessionResponse], status_code=200)
-@require_role(["ADMIN"])
+@require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def get_chat_sessions_by_user_id(
         limit: Optional[int] = None,
         offset: Optional[int] = None,

@@ -27,11 +27,13 @@ async def create_questions(
     return await question_service.create_questions(list_questions_request=questions_request)
 
 
-@router.get("/quiz/{quiz_id}/questions", response_model=List[QuestionResponse])
+@router.get("/quizzes/{quiz_id}/questions", response_model=List[QuestionResponse])
+@require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def get_questions_by_quiz(
         quiz_id: int,
         limit: Optional[int] = None,
         offset: Optional[int] = None,
+        current_user: User = Depends(get_current_user),
         service: QuestionService = Depends(get_question_service)
 ):
     params = {"limit": limit, "offset": offset}
@@ -43,6 +45,7 @@ async def get_questions_by_quiz(
 async def get_questions(
         limit: Optional[int] = None,
         offset: Optional[int] = None,
+        current_user: User = Depends(get_current_user),
         service: QuestionService = Depends(get_question_service)
 ):
     params = {"limit": limit, "offset": offset}
@@ -65,6 +68,7 @@ async def get_question_by_id(
 async def update_question(
         question_id: int,
         question: QuestionRequest,
+        current_user: User = Depends(get_current_user),
         service: QuestionService = Depends(get_question_service)
 ):
     db_question = await service.update_question(question_id=question_id, question_request=question)
@@ -77,6 +81,7 @@ async def update_question(
 @require_role(["ADMIN", "LECTURER"])
 async def delete_question(
         question_id: int,
+        current_user: User = Depends(get_current_user),
         service: QuestionService = Depends(get_question_service)
 ):
     success = await service.delete_question(question_id=question_id)

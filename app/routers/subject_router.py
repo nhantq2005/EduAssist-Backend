@@ -50,7 +50,7 @@ async def get_subject(
 
 
 @router.put("/subjects/{subject_id}", response_model=SubjectResponse)
-@require_role(["ADMIN", "LECTURE"])
+@require_role(["ADMIN", "LECTURER"])
 async def update_subject(
         subject_id: int,
         subject_request: SubjectRequest,
@@ -66,7 +66,7 @@ async def update_subject(
 
 
 @router.delete("/subjects/{subject_id}", status_code=status.HTTP_204_NO_CONTENT)
-@require_role(["ADMIN", "LECTURE"])
+@require_role(["ADMIN", "LECTURER"])
 async def delete_subject(
         subject_id: int,
         subject_service: SubjectService = Depends(get_subject_service)
