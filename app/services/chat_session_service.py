@@ -43,7 +43,12 @@ class ChatSessionService:
     async def get_chat_session_by_user_id(self, user_id: int, params: dict):
         limit = params.get("limit", 100)
         offset = params.get("offset", 0)
-        stm = (select(ChatSession).options(selectinload(ChatSession.user)).where(ChatSession.user_id == user_id))
+        stm = (
+            select(ChatSession)
+            .options(selectinload(ChatSession.user))
+            .where(ChatSession.user_id == user_id)
+            .order_by(ChatSession.created_date.desc())
+        )
         stm = stm.offset(offset).limit(limit)
         result = await self.session.execute(stm)
         return result.scalars().all()
