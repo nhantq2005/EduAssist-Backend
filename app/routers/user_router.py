@@ -53,6 +53,6 @@ async def login(
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/profile", response_model=UserResponse)
+@router.get("/profile", response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def get_my_profile(current_user: User = Depends(get_current_user)) -> Any:
     return current_user

@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, HTTPException, Query, status
 from typing import List, Optional
 from app.api.dependencies import get_quiz_service, get_current_user
 from app.core.permissions import require_role
@@ -19,7 +19,7 @@ async def create_quiz(
 ):
     return await quiz_service.create_quiz(quiz_request)
 
-@router.post("/quizzes/generate", response_model=QuizData, status_code=200)
+@router.post("/quizzes/generate", response_model=QuizData, status_code=status.HTTP_201_CREATED)
 @require_role(["ADMIN", "LECTURER"])
 async def generate_quiz_by_ai(
         request: QuizGenerateRequest,
@@ -32,7 +32,7 @@ async def generate_quiz_by_ai(
         raise HTTPException(status_code=500, detail=f"Lỗi khi sinh trắc nghiệm: {str(e)}")
 
 
-@router.get("/quizzes", response_model=List[QuizResponse])
+@router.get("/quizzes", response_model=List[QuizResponse], status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def get_quizzes(
         title: Optional[str] = None,
@@ -53,7 +53,7 @@ async def get_quizzes(
     return await quiz_service.get_quizzes(params)
 
 
-@router.get("/subjects/{subject_id}/quizzes", response_model=List[QuizResponse])
+@router.get("/subjects/{subject_id}/quizzes", response_model=List[QuizResponse], status_code=status.HTTP_200_OK)
 async def get_quizzes_by_subject(
         subject_id: int,
         limit: Optional[int] = 100,
@@ -67,7 +67,7 @@ async def get_quizzes_by_subject(
     return quizzes
 
 
-@router.get("/quizzes/{quiz_id}", response_model=QuizResponse)
+@router.get("/quizzes/{quiz_id}", response_model=QuizResponse, status_code=status.HTTP_200_OK)
 async def get_quiz(quiz_id: int, quiz_service: QuizService = Depends(get_quiz_service)):
     quiz = await quiz_service.get_quiz_by_id(quiz_id)
     if not quiz:
@@ -75,7 +75,7 @@ async def get_quiz(quiz_id: int, quiz_service: QuizService = Depends(get_quiz_se
     return quiz
 
 
-@router.put("/quizzes/{quiz_id}", response_model=QuizResponse)
+@router.put("/quizzes/{quiz_id}", response_model=QuizResponse, status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER"])
 async def update_quiz(
         quiz_id: int,
@@ -93,7 +93,7 @@ async def update_quiz(
     return updated_quiz
 
 
-@router.delete("/quizzes/{quiz_id}", status_code=204)
+@router.delete("/quizzes/{quiz_id}", status_code=status.HTTP_204_NO_CONTENT)
 @require_role(["ADMIN", "LECTURER"])
 async def delete_quiz(
         quiz_id: int,

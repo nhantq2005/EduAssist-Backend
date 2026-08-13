@@ -1,4 +1,4 @@
-from fastapi import APIRouter, Depends, HTTPException
+from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Optional
 from app.api.dependencies import get_question_service, get_current_user
 from app.core.permissions import require_role
@@ -17,7 +17,7 @@ router = APIRouter(tags=["Questions"])
 # ):
 #     return await service.create_question(question_request=question)
 
-@router.post("/questions", response_model=List[QuestionResponse])
+@router.post("/questions", response_model=List[QuestionResponse], status_code=status.HTTP_201_CREATED)
 @require_role(["ADMIN", "LECTURER"])
 async def create_questions(
         questions_request: List[QuestionRequest],
@@ -27,7 +27,7 @@ async def create_questions(
     return await question_service.create_questions(list_questions_request=questions_request)
 
 
-@router.get("/quizzes/{quiz_id}/questions", response_model=List[QuestionResponse])
+@router.get("/quizzes/{quiz_id}/questions", response_model=List[QuestionResponse], status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def get_questions_by_quiz(
         quiz_id: int,
@@ -40,7 +40,7 @@ async def get_questions_by_quiz(
     return await service.get_question_by_quiz(quiz_id=quiz_id, params=params)
 
 
-@router.get("/questions", response_model=List[QuestionResponse])
+@router.get("/questions", response_model=List[QuestionResponse], status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER"])
 async def get_questions(
         limit: Optional[int] = None,
@@ -52,7 +52,7 @@ async def get_questions(
     return await service.get_questions(params=params)
 
 
-@router.get("/questions/{question_id}", response_model=QuestionResponse)
+@router.get("/questions/{question_id}", response_model=QuestionResponse, status_code=status.HTTP_200_OK)
 async def get_question_by_id(
         question_id: int,
         service: QuestionService = Depends(get_question_service)
@@ -63,7 +63,7 @@ async def get_question_by_id(
     return db_question
 
 
-@router.put("/questions/{question_id}", response_model=QuestionResponse)
+@router.put("/questions/{question_id}", response_model=QuestionResponse, status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER"])
 async def update_question(
         question_id: int,
@@ -77,7 +77,7 @@ async def update_question(
     return db_question
 
 
-@router.delete("/questions/{question_id}")
+@router.delete("/questions/{question_id}", status_code=status.HTTP_204_NO_CONTENT)
 @require_role(["ADMIN", "LECTURER"])
 async def delete_question(
         question_id: int,
