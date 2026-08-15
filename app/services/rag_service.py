@@ -1,6 +1,5 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import StreamingResponse
-
 from app.rag.generate.answer_generator import stream_answer
 
 
