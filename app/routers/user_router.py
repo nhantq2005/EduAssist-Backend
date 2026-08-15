@@ -16,17 +16,14 @@ async def register_user(
 ):
     username = user_in.username.strip().lower()
     email = str(user_in.email).strip().lower()
-
     existing_user = (
         await user_service.get_user_by_username_or_email(username, email)
     )
-
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Username hoặc email đã tồn tại",
         )
-
     user_data = user_in.model_dump()
     user_data["username"] = username
     user_data["email"] = email
@@ -54,5 +51,5 @@ async def login(
 
 
 @router.get("/profile", response_model=UserResponse, status_code=status.HTTP_200_OK)
-async def get_my_profile(current_user: User = Depends(get_current_user)) -> Any:
+async def get_my_profile(current_user: User = Depends(get_current_user)):
     return current_user
