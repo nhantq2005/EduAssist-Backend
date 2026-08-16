@@ -70,7 +70,7 @@ class QuestionService:
     async def get_question_by_quiz(self, quiz_id: int, params:dict):
         limit = params.get("limit", 100)
         offset = params.get("offset", 0)
-        stm = select(Question).options(selectinload(Question.options)).where(Question.quiz_id == quiz_id)
+        stm = select(Question).options(selectinload(Question.options)).where(Question.quiz_id == quiz_id).order_by(Question.id)
         stm = stm.limit(limit).offset(offset)
         result = await self.session.execute(stm)
         return list(result.scalars().all())
@@ -82,6 +82,29 @@ class QuestionService:
             for key, value in update_data.items():
                 if key != "options":
                     setattr(db_question, key, value)
+
+            if "options" in update_data:
+                existing_options = {opt.id: opt for opt in db_question.options}
+                
+                for opt_req in question_request.options:
+                    if opt_req.id and opt_req.id in existing_options:
+                        # CAP NHAT OPT
+                        existing_opt = existing_options.pop(opt_req.id)
+                        existing_opt.content = opt_req.content
+                        existing_opt.is_correct = opt_req.is_correct
+                    else:
+                        # TAO OPT MOI NEU CHUA CO
+                        new_opt = Option(
+                            content=opt_req.content, 
+                            is_correct=opt_req.is_correct, 
+                            question_id=question_id
+                        )
+                        self.session.add(new_opt)
+                
+                # XOA OPT KHONG DUOC CAP NHAT
+                for opt_to_delete in existing_options.values():
+                    await self.session.delete(opt_to_delete)
+            
             await self.session.commit()
             await self.session.refresh(db_question)
 

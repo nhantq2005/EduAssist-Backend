@@ -16,17 +16,14 @@ async def register_user(
 ):
     username = user_in.username.strip().lower()
     email = str(user_in.email).strip().lower()
-
     existing_user = (
         await user_service.get_user_by_username_or_email(username, email)
     )
-
     if existing_user:
         raise HTTPException(
             status_code=status.HTTP_409_CONFLICT,
             detail="Username hoặc email đã tồn tại",
         )
-
     user_data = user_in.model_dump()
     user_data["username"] = username
     user_data["email"] = email
@@ -48,11 +45,10 @@ async def login(
             headers={"WWW-Authenticate": "Bearer"},
         )
 
-    # Tạo token
     access_token = create_access_token(data={"sub": user.username})
     return {"access_token": access_token, "token_type": "bearer"}
 
 
-@router.get("/profile", response_model=UserResponse)
-async def get_my_profile(current_user: User = Depends(get_current_user)) -> Any:
+@router.get("/profile", response_model=UserResponse, status_code=status.HTTP_200_OK)
+async def get_my_profile(current_user: User = Depends(get_current_user)):
     return current_user

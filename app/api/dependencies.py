@@ -1,9 +1,9 @@
-# app/api/dependencies.py
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
 import jwt
 from app.db.session import get_db
+from app.services.quiz_attempt_service import QuizAttemptService
 from app.services.chat_message_service import ChatMessageService
 from app.services.chat_session_service import ChatSessionService
 from app.services.document_service import DocumentService
@@ -52,9 +52,12 @@ def get_question_service(db: AsyncSession = Depends(get_db))-> QuestionService:
 def get_chat_message_service(db: AsyncSession = Depends(get_db)) -> ChatMessageService:
     return ChatMessageService(db)
 
+def get_quiz_attempt_service(db: AsyncSession = Depends(get_db)) -> QuizAttemptService:
+    return QuizAttemptService(db)
 
 
-# Dependency 2: Lấy User hiện tại đang đăng nhập từ Token
+
+# LAY USER TU TOKEN
 async def get_current_user(
         token: str = Depends(oauth2_scheme),
         user_service: UserService = Depends(get_user_service)
@@ -66,7 +69,6 @@ async def get_current_user(
     )
 
     try:
-        # Giải mã token
         payload = jwt.decode(token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
         username: str = payload.get("sub")
         if username is None:
@@ -74,15 +76,12 @@ async def get_current_user(
 
     except jwt.PyJWTError:
         raise credentials_exception
-
-    # Query database thông qua UserService
-    # Lưu ý: Bạn cần thêm hàm get_user_by_username vào UserService của bạn nhé
     user = await user_service.get_user_by_username(username)
 
     if user is None:
         raise credentials_exception
 
     if not user.is_active:
-        raise HTTPException(status_code=400, detail="Tài khoản đã bị khóa")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Tài khoản đã bị khóa")
 
     return user

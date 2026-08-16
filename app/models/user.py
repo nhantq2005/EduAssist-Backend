@@ -30,7 +30,6 @@ class User(Base):
     documents: Mapped[list["Document"]] = relationship(back_populates="lecturer")
     attempt_quizzes: Mapped[list["QuizAttempt"]] = relationship(back_populates="user")
     subjects: Mapped[list["Subject"]] = relationship(back_populates="lecturer")
-    enrollments: Mapped[list["Enrollment"]] = relationship(back_populates="user")
     notification_reads: Mapped[list["NotificationRead"]] = relationship(back_populates="user")
     chat_sessions: Mapped[list["ChatSession"]] = relationship(back_populates="user")
 

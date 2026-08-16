@@ -1,10 +1,11 @@
 from typing import Optional
-from pydantic import BaseModel, ConfigDict
+from pydantic import BaseModel, ConfigDict, Field
 
 class OptionRequest(BaseModel):
+    id: Optional[int] = Field(default=None)
     content: str
-    is_correct: bool = False
-    question_id: Optional[int] = None
+    is_correct: bool
+    question_id: Optional[int] = Field(default=None)
 
 class OptionResponse(BaseModel):
     id: int

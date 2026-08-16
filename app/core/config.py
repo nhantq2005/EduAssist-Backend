@@ -15,15 +15,11 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
 
     UPLOAD_DIR: Path = Path("storage/uploads")
     EXTRACTED_DIR: Path = Path("storage/extracted")
     PROCESSED_DIR: Path = Path("storage/processed")
-
-    QDRANT_URL: str = "http://localhost:6333"
-    QDRANT_API_KEY: str | None = None
-    QDRANT_COLLECTION: str = "document_chunks"
 
     EMBEDDING_MODEL: str = "BAAI/bge-m3"
     EMBEDDING_BATCH_SIZE: int = 16

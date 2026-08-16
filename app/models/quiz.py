@@ -23,15 +23,16 @@ class Quiz(Base):
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
-    # Thời gian tính theo phút
-    time_limit: Mapped[int] = mapped_column(Integer, nullable=True)
     source_type: Mapped[SourceType] = mapped_column(SqlEnum(SourceType), default=SourceType.TEACHER_CREATED)
     difficulty_level: Mapped[DifficultyLevel] = mapped_column(SqlEnum(DifficultyLevel))
     created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     updated_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now, onupdate=datetime.now)
     subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id"), nullable=False)
+    created_by: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False, default=1)
+    is_public: Mapped[bool] = mapped_column(default=True)
 
     subject:Mapped["Subject"] = relationship(back_populates="quizzes")
+    creator: Mapped["User"] = relationship()
 
     quiz_attempts: Mapped[list["QuizAttempt"]] = relationship(back_populates="quiz")
     questions: Mapped[list["Question"]] = relationship(back_populates="quiz")

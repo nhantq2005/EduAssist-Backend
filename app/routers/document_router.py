@@ -7,20 +7,12 @@ from app.models import User
 from app.schemas.document import DocumentRequest, DocumentResponse, DocumentUpdateRequest
 from fastapi import UploadFile, File, BackgroundTasks
 from app.services.document_service import DocumentService
-from app.rag.processing_pipeline import process_document_pipeline
-from app.db.session import AsyncSessionLocal
-
-
-async def run_pipeline_task(document_id: int, file_bytes: bytes, file_name: str):
-    async with AsyncSessionLocal() as session:
-        await process_document_pipeline(document_id, file_bytes, file_name, session)
-
 
 router = APIRouter(tags=["documents"])
 
 
 @router.post("/documents", response_model=DocumentResponse, status_code=status.HTTP_201_CREATED)
-@require_role(["ADMIN", "LECTURE"])
+@require_role(["ADMIN", "LECTURER"])
 async def create_document(
         background_tasks: BackgroundTasks,
         title: str = Form(...),
@@ -32,16 +24,18 @@ async def create_document(
     document_request = DocumentRequest(
         title=title,
         lecturer_id=current_user.id,
-        subject_id=subject_id,
+        subject_id=subject_id
     )
-    document = await document_service.create_document(document_request=document_request, file=file)
-    await file.seek(0)
-    file_bytes = await file.read()
-    background_tasks.add_task(run_pipeline_task, document.id, file_bytes, file.filename)
+    document = await document_service.create_document(
+        document_request=document_request,
+        file=file,
+        background_tasks=background_tasks
+    )
+
     return document
 
 
-@router.get("/subjects/{subject_id}/documents", response_model=List[DocumentResponse])
+@router.get("/subjects/{subject_id}/documents", response_model=List[DocumentResponse], status_code=status.HTTP_200_OK)
 async def get_documents_by_subject(
         subject_id: int,
         limit: Optional[int] = None,
@@ -56,7 +50,7 @@ async def get_documents_by_subject(
     return documents
 
 
-@router.get("/documents", response_model=List[DocumentResponse])
+@router.get("/documents", response_model=List[DocumentResponse], status_code=status.HTTP_200_OK)
 async def get_all_documents(
         title: Optional[str] = None,
         created_date: Optional[date] = None,
@@ -73,7 +67,7 @@ async def get_all_documents(
     return await document_service.get_all_documents(params)
 
 
-@router.get("/documents/{document_id}", response_model=DocumentResponse)
+@router.get("/documents/{document_id}", response_model=DocumentResponse, status_code=status.HTTP_200_OK)
 async def get_document_by_id(
         document_id: int,
         document_service: DocumentService = Depends(get_document_service)
@@ -84,10 +78,11 @@ async def get_document_by_id(
     return document
 
 
-@router.put("/documents/{document_id}", response_model=DocumentResponse)
-@require_role(["ADMIN", "LECTURE"])
+@router.put("/documents/{document_id}", response_model=DocumentResponse, status_code=status.HTTP_200_OK)
+@require_role(["ADMIN", "LECTURER"])
 async def update_document(
         document_id: int,
+        background_tasks: BackgroundTasks,
         title: str | None = Form(None),
         subject_id: int | None = Form(None),
         file: UploadFile | None = File(None),
@@ -99,14 +94,19 @@ async def update_document(
         lecturer_id=current_user.id,
         subject_id=subject_id,
     )
-    document = await document_service.update_document(document_id, document_request, file)
+    document = await document_service.update_document(
+        document_id=document_id,
+        document_request=document_request,
+        file=file,
+        background_tasks=background_tasks
+    )
     if not document:
         raise HTTPException(status_code=404, detail="Không tìm thấy tài liệu để cập nhật")
     return document
 
 
 @router.delete("/documents/{document_id}", status_code=status.HTTP_204_NO_CONTENT)
-@require_role(["ADMIN", "LECTURE"])
+@require_role(["ADMIN", "LECTURER"])
 async def delete_document(
         document_id: int,
         document_service: DocumentService = Depends(get_document_service)

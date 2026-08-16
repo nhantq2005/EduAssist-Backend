@@ -1,9 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from typing import List, Optional
-
-from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.sql.functions import current_user
-
 from app.api.dependencies import get_subject_service, get_current_user
 from app.core.permissions import require_role
 from app.models import User
@@ -13,7 +9,7 @@ from app.services.subject_service import SubjectService
 router = APIRouter(tags=["Subjects"])
 
 
-@router.post("/subjects", response_model=SubjectResponse)
+@router.post("/subjects", response_model=SubjectResponse, status_code=status.HTTP_201_CREATED)
 @require_role(["ADMIN"])
 async def create_subject(
         subject_request: SubjectRequest,
@@ -23,7 +19,7 @@ async def create_subject(
     return await subject_service.create_subject(subject_request=subject_request, lecturer_id=current_user.id)
 
 
-@router.get("/subjects", response_model=List[SubjectResponse])
+@router.get("/subjects", response_model=List[SubjectResponse], status_code=status.HTTP_200_OK)
 async def get_subjects(
         offset: Optional[int] = 0,
         limit: Optional[int] = 100,
@@ -38,7 +34,7 @@ async def get_subjects(
     return await subject_service.get_subjects(params=params)
 
 
-@router.get("/subjects/{subject_id}", response_model=SubjectDetailRespone)
+@router.get("/subjects/{subject_id}", response_model=SubjectDetailRespone, status_code=status.HTTP_200_OK)
 async def get_subject(
         subject_id: int,
         subject_service: SubjectService = Depends(get_subject_service)
@@ -49,7 +45,7 @@ async def get_subject(
     return db_subject
 
 
-@router.put("/subjects/{subject_id}", response_model=SubjectResponse)
+@router.put("/subjects/{subject_id}", response_model=SubjectResponse, status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER"])
 async def update_subject(
         subject_id: int,
@@ -80,7 +76,7 @@ async def delete_subject(
     return None
 
 
-@router.get("/users/{lecture_id}/subjects", response_model=List[SubjectResponse])
+@router.get("/users/{lecture_id}/subjects", response_model=List[SubjectResponse], status_code=status.HTTP_200_OK)
 async def get_subjects_by_lecture(
         lecture_id: int,
         offset: Optional[int] = 0,

@@ -1,18 +1,23 @@
 from fastapi import HTTPException
-from sqlalchemy import select
+from sqlalchemy import select, or_
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from app.models import Quiz
-from app.schemas.quiz import QuizCreate
+from app.models.quiz import SourceType
+from app.schemas.quiz import QuizCreate, QuizGenerateRequest
+from app.rag.generate.quiz_generator import generate_quiz_from_topic, QuizData
+from app.services.question_service import QuestionService
 
 
 class QuizService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create_quiz(self, quiz_request: QuizCreate) -> Quiz:
+    async def create_quiz(self, quiz_request: QuizCreate, user_id: int) -> Quiz:
         try:
-            quiz = Quiz(**quiz_request.model_dump())
+            data = quiz_request.model_dump()
+            data["created_by"] = user_id
+            quiz = Quiz(**data)
             self.session.add(quiz)
             await self.session.commit()
             await self.session.refresh(quiz)
@@ -21,8 +26,32 @@ class QuizService:
             await self.session.rollback()
             raise HTTPException(status_code=400, detail=str(e))
 
-    async def get_quizzes(self, params: dict) -> list[Quiz]:
+    async def generate_and_save_quiz(self, request: QuizGenerateRequest, user_id: int, question_service: QuestionService) -> QuizData:
+        try:
+            quiz_data = await generate_quiz_from_topic(request.topic, request.num_questions)
+            quiz_create = QuizCreate(
+                title=f"AI Quiz: {request.topic}",
+                description=f"Bài trắc nghiệm chủ đề: {request.topic}",
+                source_type=SourceType.AI_GENERATED,
+                difficulty_level=request.difficulty_level,
+                subject_id=request.subject_id,
+                is_public=request.is_public
+            )
+            quiz = await self.create_quiz(quiz_create, user_id)
+            for question in quiz_data.questions:
+                question.quiz_id = quiz.id
+            await question_service.create_questions(quiz_data.questions)
+            return quiz_data
+        except Exception as e:
+            raise Exception(f"Lỗi khi sinh trắc nghiệm: {str(e)}")
+
+    async def get_quizzes(self, params: dict, user_id: int, role: str) -> list[Quiz]:
         stm = select(Quiz)
+
+        if role == "STUDENT":
+            stm = stm.where(or_(Quiz.is_public == True, Quiz.created_by == user_id))
+        elif role == "LECTURER":
+            stm = stm.where(Quiz.created_by == user_id)
 
         if params.get('title') is not None:
             stm = stm.where(Quiz.title.ilike(f"%{params['title']}%"))
