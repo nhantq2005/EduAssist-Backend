@@ -18,7 +18,6 @@ class Subject(Base):
     lecturer: Mapped["User"] = relationship(back_populates="subjects")
 
     notifications:Mapped[list["Notification"]] = relationship(back_populates="subject")
-    enrollments: Mapped[list["Enrollment"]] = relationship(back_populates="subject")
     documents: Mapped[list["Document"]] = relationship(back_populates="subject")
     quizzes: Mapped[list["Quiz"]] = relationship(back_populates="subject")
 
