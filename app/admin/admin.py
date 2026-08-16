@@ -16,7 +16,7 @@ class UserAdmin(ModelView, model=User):
     name_plural = "Quản lý Người dùng"
     column_list = [User.id, User.username, User.name, User.email, User.role, User.is_active]
     column_searchable_list = [User.username, User.email, User.name]
-    form_excluded_columns = [User.documents, User.attempt_quizzes, User.subjects, User.enrollments,
+    form_excluded_columns = [User.documents, User.attempt_quizzes, User.subjects,
                              User.notification_reads, User.chat_sessions]
     icon = "fa-solid fa-user"
 
@@ -36,7 +36,7 @@ class SubjectAdmin(ModelView, model=Subject):
     name_plural = "Quản lý Môn học"
     column_list = [Subject.id, Subject.code, Subject.name, Subject.lecturer_id]
     column_searchable_list = [Subject.code, Subject.name]
-    form_excluded_columns = [Subject.notifications, Subject.enrollments, Subject.documents, Subject.quizzes]
+    form_excluded_columns = [Subject.notifications, Subject.documents, Subject.quizzes]
     icon = "fa-solid fa-book"
 
     form_args = dict(
