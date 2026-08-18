@@ -7,6 +7,7 @@ from collections import defaultdict
 from pathlib import Path
 import pymupdf
 from app.rag.preprocessing.convert_to_unicode import convert_tcvn3_to_unicode
+from app.rag.preprocessing.utils import CODE_SYNTAX, COMPARISON_OPERATORS
 
 CURRENT_FILE = Path(__file__).resolve()
 ROOT = (CURRENT_FILE.parents[3] if len(CURRENT_FILE.parents) > 3 else CURRENT_FILE.parent)
@@ -161,12 +162,9 @@ def is_toc(page: dict):
 def is_code(lines: list[dict]):
     texts = [line["text"].strip() for line in lines]
     strong = sum(
-        text.startswith(
-            ("//", "/*", "#include", "#define", "import ", "from ", "def ", "class ", "public ", "private ", "using namespace ",
-                "SELECT ", "INSERT ", "UPDATE ", "DELETE ")
-        )
+        text.startswith(CODE_SYNTAX)
         or text in {"{", "}", "};"} or bool(re.search(r"^\w[\w.\[\]]*\s*=\s*.+;?$", text))
-        or any(op in text for op in ("<<", ">>", "==", "!=", "=>", "->")) for text in texts
+        or any(op in text for op in COMPARISON_OPERATORS) for text in texts
     )
     mono = sum(line["mono"] for line in lines)
 
