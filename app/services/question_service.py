@@ -11,12 +11,12 @@ class QuestionService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_question_by_id(self, question_id: int) -> Optional[Question]:
+    async def get_question_by_id(self, question_id: int):
         result = await self.session.execute(
             select(Question).options(selectinload(Question.options)).where(Question.id == question_id))
         return result.scalars().first()
 
-    async def get_questions(self, params: dict) -> List[Question]:
+    async def get_questions(self, params: dict):
         skip = params.get("skip", 0)
         limit = params.get("limit", 100)
         result = await self.session.execute(
@@ -40,7 +40,7 @@ class QuestionService:
         )
         return result.scalars().first()
 
-    async def create_questions(self, list_questions_request: List[QuestionRequest]) -> list[QuestionRequest]:
+    async def create_questions(self, list_questions_request: List[QuestionRequest]):
         questions = []
         for question_request in list_questions_request:
             question_data = question_request.model_dump(exclude={"options"})
@@ -113,7 +113,7 @@ class QuestionService:
             return result.scalars().first()
         return db_question
 
-    async def delete_question(self, question_id: int) -> bool:
+    async def delete_question(self, question_id: int):
         db_question = await self.get_question_by_id(question_id)
         if db_question:
             await self.session.delete(db_question)
