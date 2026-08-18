@@ -1,5 +1,7 @@
 from typing import Optional
 from pydantic import BaseModel, ConfigDict
+from app.schemas.question import QuestionResponse
+from app.schemas.option import OptionResponse
 
 class UserAnswerCreate(BaseModel):
     is_correct: bool
@@ -19,5 +21,7 @@ class UserAnswerResponse(BaseModel):
     question_id: int
     option_id: int
     quiz_attempt_id: int
+    question: Optional[QuestionResponse] = None
+    option: Optional[OptionResponse] = None
 
     model_config = ConfigDict(from_attributes=True)

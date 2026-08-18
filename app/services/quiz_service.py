@@ -13,7 +13,7 @@ class QuizService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def create_quiz(self, quiz_request: QuizCreate, user_id: int) -> Quiz:
+    async def create_quiz(self, quiz_request: QuizCreate, user_id: int):
         try:
             data = quiz_request.model_dump()
             data["created_by"] = user_id
