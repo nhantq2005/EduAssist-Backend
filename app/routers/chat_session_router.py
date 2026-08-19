@@ -17,7 +17,8 @@ async def create_chat_session(
         current_user: User = Depends(get_current_user),
         chat_session_service: ChatSessionService = Depends(get_chat_session_service)
 ):
-    return await chat_session_service.create_chat_session(chat_session_request, current_user.id)
+    return await chat_session_service.create_chat_session(chat_session_request=chat_session_request,
+                                                          user_id=current_user.id)
 
 
 @router.get("/chat-sessions", response_model=List[ChatSessionResponse], status_code=status.HTTP_200_OK)
@@ -32,4 +33,4 @@ async def get_chat_sessions_by_user_id(
         "limit": limit,
         "offset": offset,
     }
-    return await chat_session_service.get_chat_session_by_user_id(current_user.id, params)
+    return await chat_session_service.get_chat_session_by_user_id(user_id=current_user.id, params=params)

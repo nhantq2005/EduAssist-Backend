@@ -46,7 +46,7 @@ async def get_documents_by_subject(
         "limit": limit,
         "offset": offset,
     }
-    documents = await document_service.get_documents_by_subject_id(subject_id, params)
+    documents = await document_service.get_documents_by_subject_id(subject_id=subject_id, params=params)
     return documents
 
 
@@ -64,7 +64,7 @@ async def get_all_documents(
         "limit": limit,
         "offset": offset,
     }
-    return await document_service.get_all_documents(params)
+    return await document_service.get_all_documents(params=params)
 
 
 @router.get("/documents/{document_id}", response_model=DocumentResponse, status_code=status.HTTP_200_OK)
@@ -72,7 +72,7 @@ async def get_document_by_id(
         document_id: int,
         document_service: DocumentService = Depends(get_document_service)
 ):
-    document = await document_service.get_document_by_id(document_id)
+    document = await document_service.get_document_by_id(document_id=document_id)
     if not document:
         raise HTTPException(status_code=404, detail="Không tìm thấy tài liệu")
     return document
@@ -111,7 +111,7 @@ async def delete_document(
         document_id: int,
         document_service: DocumentService = Depends(get_document_service)
 ):
-    document = await document_service.delete_document(document_id)
+    document = await document_service.delete_document(document_id=document_id)
     if not document:
         raise HTTPException(status_code=404, detail="Không tìm thấy tài liệu để xóa")
     return None
