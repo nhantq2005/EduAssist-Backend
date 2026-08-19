@@ -9,13 +9,12 @@ class Question(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     question: Mapped[str] = mapped_column(String, nullable=False)
-    explaination: Mapped[str | None] = mapped_column(String, nullable=True)
+    explanation: Mapped[str | None] = mapped_column(String, nullable=True)
     score: Mapped[float | None] = mapped_column(Double, nullable=True)
     created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
     quiz_id: Mapped[int] = mapped_column(ForeignKey("quizzes.id"), nullable=False)
 
     quiz: Mapped["Quiz"] = relationship(back_populates="questions")
 
-    options: Mapped[list["Option"]] = relationship(back_populates="question")
-    user_answers: Mapped[list["UserAnswer"]] = relationship(back_populates="question")
-
+    options: Mapped[list["Option"]] = relationship(back_populates="question", cascade="all, delete-orphan")
+    user_answers: Mapped[list["UserAnswer"]] = relationship(back_populates="question", cascade="all, delete-orphan")
