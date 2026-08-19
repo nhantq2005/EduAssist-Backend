@@ -4,7 +4,6 @@ from app.models.chat_message import ChatMessage
 from app.models.chat_session import ChatSession
 from app.models.document import Document
 from app.models.document_chunk import DocumentChunk
-from app.models.enrollment import Enrollment
 from app.models.notification import Notification
 from app.models.notification_read import NotificationRead
 from app.models.option import Option
@@ -22,7 +21,6 @@ __all__ = [
     "ChatMessage",
     "ChatSession",
     "Document",
-    "Enrollment",
     "Notification",
     "Quiz",
     "Subject",
