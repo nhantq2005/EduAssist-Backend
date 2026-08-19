@@ -18,7 +18,7 @@ async def create_quiz(
         current_user: User = Depends(get_current_user),
         quiz_service: QuizService = Depends(get_quiz_service)
 ):
-    return await quiz_service.create_quiz(quiz_request, current_user.id)
+    return await quiz_service.create_quiz(quiz_request=quiz_request, user_id=current_user.id)
 
 
 @router.post("/quizzes/generate", response_model=QuizData, status_code=status.HTTP_201_CREATED)
@@ -30,7 +30,9 @@ async def generate_quiz_by_ai(
         question_service: QuestionService = Depends(get_question_service)
 ):
     try:
-        return await quiz_service.generate_and_save_quiz(request, current_user.id, question_service)
+        return await quiz_service.generate_and_save_quiz(request=request,
+                                                         user_id=current_user.id,
+                                                         question_service=question_service)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
@@ -53,7 +55,7 @@ async def get_quizzes(
         "offset": offset,
         "limit": limit
     }
-    return await quiz_service.get_quizzes(params, current_user.id, current_user.role)
+    return await quiz_service.get_quizzes(params=params, user_id=current_user.id, role=current_user.role)
 
 
 @router.get("/subjects/{subject_id}/quizzes", response_model=List[QuizResponse], status_code=status.HTTP_200_OK)
@@ -64,15 +66,15 @@ async def get_quizzes_by_subject(
         quiz_service: QuizService = Depends(get_quiz_service)
 ):
     params = {limit: limit, offset: offset}
-    quizzes = await quiz_service.get_quiz_by_subject(subject_id, params)
+    quizzes = await quiz_service.get_quiz_by_subject(subject_id=subject_id, params=params)
     if not quizzes:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy quiz nào cho môn học này")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy quiz nào cho môn học")
     return quizzes
 
 
 @router.get("/quizzes/{quiz_id}", response_model=QuizResponse, status_code=status.HTTP_200_OK)
 async def get_quiz(quiz_id: int, quiz_service: QuizService = Depends(get_quiz_service)):
-    quiz = await quiz_service.get_quiz_by_id(quiz_id)
+    quiz = await quiz_service.get_quiz_by_id(quiz_id=quiz_id)
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz không tồn tại")
     return quiz
@@ -86,7 +88,7 @@ async def update_quiz(
         current_user: User = Depends(get_current_user),
         quiz_service: QuizService = Depends(get_quiz_service)
 ):
-    quiz = await quiz_service.get_quiz_by_id(quiz_id)
+    quiz = await quiz_service.get_quiz_by_id(quiz_id=quiz_id)
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz không tồn tại")
 
@@ -97,7 +99,7 @@ async def update_quiz(
     if not params:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Không có dữ liệu để cập nhật")
 
-    updated_quiz = await quiz_service.update_quiz(quiz_id, params)
+    updated_quiz = await quiz_service.update_quiz(quiz_id=quiz_id, params=params)
     if not updated_quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz không tồn tại")
     return updated_quiz
@@ -110,12 +112,12 @@ async def delete_quiz(
         current_user: User = Depends(get_current_user),
         quiz_service: QuizService = Depends(get_quiz_service)
 ):
-    quiz = await quiz_service.get_quiz_by_id(quiz_id)
+    quiz = await quiz_service.get_quiz_by_id(quiz_id=quiz_id)
     if not quiz:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz không tồn tại")
 
     if current_user.role != "ADMIN" and quiz.created_by != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bạn không có quyền xóa bài quiz này")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bạn không có quyền xóa bài quiz")
 
     deleted_quiz = await quiz_service.delete_quiz(quiz_id)
     if not deleted_quiz:

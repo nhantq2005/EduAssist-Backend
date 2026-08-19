@@ -28,17 +28,16 @@ async def create_questions(
 ):
     if not questions_request:
         return []
-    
     quiz_id = questions_request[0].quiz_id
     if not quiz_id:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="quiz_id is required")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Vui lòng cung cấp quiz_id")
 
-    quiz = await quiz_service.get_quiz_by_id(quiz_id)
+    quiz = await quiz_service.get_quiz_by_id(quiz_id=quiz_id)
     if not quiz:
          raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Quiz không tồn tại")
 
     if current_user.role != "ADMIN" and quiz.created_by != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bạn không có quyền thêm câu hỏi vào bài quiz này")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bạn không có quyền thêm câu hỏi vào bài quiz")
 
     return await question_service.create_questions(list_questions_request=questions_request)
 
@@ -88,11 +87,11 @@ async def update_question(
         service: QuestionService = Depends(get_question_service),
         quiz_service: QuizService = Depends(get_quiz_service)
 ):
-    db_question = await service.get_question_by_id(question_id)
+    db_question = await service.get_question_by_id(question_id=question_id)
     if not db_question:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy câu hỏi")
     
-    quiz = await quiz_service.get_quiz_by_id(db_question.quiz_id)
+    quiz = await quiz_service.get_quiz_by_id(quiz_id=db_question.quiz_id)
     if quiz and current_user.role != "ADMIN" and quiz.created_by != current_user.id:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bạn không có quyền sửa câu hỏi này")
 
@@ -108,13 +107,13 @@ async def delete_question(
         service: QuestionService = Depends(get_question_service),
         quiz_service: QuizService = Depends(get_quiz_service)
 ):
-    db_question = await service.get_question_by_id(question_id)
+    db_question = await service.get_question_by_id(question_id=question_id)
     if not db_question:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy câu hỏi")
     
-    quiz = await quiz_service.get_quiz_by_id(db_question.quiz_id)
+    quiz = await quiz_service.get_quiz_by_id(quiz_id=db_question.quiz_id)
     if quiz and current_user.role != "ADMIN" and quiz.created_by != current_user.id:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bạn không có quyền xóa câu hỏi này")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bạn không có quyền xóa câu hỏi")
 
     success = await service.delete_question(question_id=question_id)
     if not success:

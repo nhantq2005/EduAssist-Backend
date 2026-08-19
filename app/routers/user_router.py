@@ -16,19 +16,14 @@ async def register_user(
 ):
     username = user_in.username.strip().lower()
     email = str(user_in.email).strip().lower()
-    existing_user = (
-        await user_service.get_user_by_username_or_email(username, email)
-    )
+    existing_user = (await user_service.get_user_by_username_or_email(username, email))
     if existing_user:
-        raise HTTPException(
-            status_code=status.HTTP_409_CONFLICT,
-            detail="Username hoặc email đã tồn tại",
-        )
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="username hoặc email đã tồn tại")
     user_data = user_in.model_dump()
     user_data["username"] = username
     user_data["email"] = email
 
-    return await user_service.create_user(user_data)
+    return await user_service.create_user(user_data=user_data)
 
 
 @router.post("/login")
@@ -36,7 +31,10 @@ async def login(
         login_data: UserLogin,
         user_service: UserService = Depends(get_user_service)
 ):
-    user = await user_service.login(login_data.username, login_data.password)
+    user = await user_service.login(
+        username=login_data.username,
+        password=login_data.password
+    )
 
     if not user:
         raise HTTPException(

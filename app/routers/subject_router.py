@@ -57,7 +57,7 @@ async def update_subject(
                                                       subject_request=subject_request,
                                                       lecturer_id=current_user.id)
     if db_subject is None:
-        raise HTTPException(status_code=404, detail="Subject not found")
+        raise HTTPException(status_code=404, detail="Không tìm thấy môn học")
     return db_subject
 
 
@@ -69,10 +69,7 @@ async def delete_subject(
 ):
     success = await subject_service.delete_subject(subject_id=subject_id)
     if not success:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Không tìm thấy môn học"
-        )
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy môn học")
     return None
 
 
@@ -89,7 +86,7 @@ async def get_subjects_by_lecture(
         "limit": limit,
         "name": name
     }
-    subjects = await subject_service.get_subjects_by_lecturer(lecture_id, params)
+    subjects = await subject_service.get_subjects_by_lecturer(lecturer_id=lecture_id, params=params)
     if subjects is None:
         raise HTTPException(status_code=404, detail="Không tim thấy giảng viên")
     return subjects

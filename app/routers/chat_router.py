@@ -8,15 +8,12 @@ from app.services.rag_service import RagService
 
 router = APIRouter(tags=["Chat"])
 
+
 @router.post("/chat/stream", status_code=status.HTTP_201_CREATED)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def chat_stream(
-    request: ChatMessageRequest, 
-    current_user: User = Depends(get_current_user),
-    rag_service : RagService = Depends(get_rag_service)
+        request: ChatMessageRequest,
+        current_user: User = Depends(get_current_user),
+        rag_service: RagService = Depends(get_rag_service)
 ):
-    # return StreamingResponse(
-    #     stream_answer(request.question, request.chat_session_id, db),
-    #     media_type="text/event-stream"
-    # )
-    return await rag_service.get_answer(request.question, request.chat_session_id)
+    return await rag_service.get_answer(question=request.question, chat_session_id=request.chat_session_id)
