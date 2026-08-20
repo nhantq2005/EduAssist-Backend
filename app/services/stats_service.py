@@ -8,17 +8,17 @@ class StatsService:
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def count_document_by_lecture(self, lecture_id: int) -> int:
+    async def count_document_by_lecture(self, lecture_id: int):
         stm = select(func.count(Document.id)).where(Document.lecturer_id == lecture_id)
         total_docs = await self.session.execute(stm)
         return total_docs.scalar()
 
-    async def count_subject_by_lecture(self, lecture_id: int) -> int:
+    async def count_subject_by_lecture(self, lecture_id: int):
         stm = select(func.count(Subject.id)).where(Subject.lecturer_id == lecture_id)
         total_subjects = await self.session.execute(stm)
         return total_subjects.scalar()
 
-    async def count_quiz_by_subject(self, subject_id: int) -> int:
+    async def count_quiz_by_subject(self, subject_id: int):
         stm = select(func.count(Quiz.id)).where(Quiz.subject_id == subject_id)
         total_quizes = await self.session.execute(stm)
         return total_quizes.scalar()
