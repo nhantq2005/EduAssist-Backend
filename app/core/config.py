@@ -15,17 +15,18 @@ class Settings(BaseSettings):
 
     SECRET_KEY: str
     ALGORITHM: str = "HS256"
-    ACCESS_TOKEN_EXPIRE_MINUTES: int = 1440
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
+    REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30
 
-    UPLOAD_DIR: Path = Path("storage/uploads")
-    EXTRACTED_DIR: Path = Path("storage/extracted")
-    PROCESSED_DIR: Path = Path("storage/processed")
-
-    EMBEDDING_MODEL: str = "BAAI/bge-m3"
-    EMBEDDING_BATCH_SIZE: int = 16
-
-    CHUNK_SIZE: int = 700
-    CHUNK_OVERLAP: int = 100
+    # UPLOAD_DIR: Path = Path("storage/uploads")
+    # EXTRACTED_DIR: Path = Path("storage/extracted")
+    # PROCESSED_DIR: Path = Path("storage/processed")
+    #
+    # EMBEDDING_MODEL: str = "BAAI/bge-m3"
+    # EMBEDDING_BATCH_SIZE: int = 16
+    #
+    # CHUNK_SIZE: int = 700
+    # CHUNK_OVERLAP: int = 100
 
     model_config = SettingsConfigDict(
         env_file=".env",
