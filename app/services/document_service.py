@@ -1,7 +1,11 @@
 import logging
+import pickle
 
 from fastapi import UploadFile, Form, File, Depends, HTTPException, status, BackgroundTasks
 from pathlib import Path
+
+from langchain_community.retrievers import BM25Retriever
+from langchain_community.vectorstores import Chroma
 from sqlalchemy import cast, Date
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
@@ -9,6 +13,7 @@ from sqlalchemy.future import select
 from app.core.websocket import manager
 from app.db.session import AsyncSessionLocal
 from app.models.document import Document, ProcessingStatus
+from app.rag.model import rag_models_instance
 from app.rag.processing_pipeline import process_document_pipeline
 from app.schemas.document import DocumentRequest, DocumentUpdateRequest
 from typing import List, Optional
@@ -51,6 +56,45 @@ async def run_pipeline_background_task(document_id: int, file_bytes: bytes, file
             if 'document' in locals() and document:
                 document.process_status = ProcessingStatus.FAILED
                 await bg_session.commit()
+
+def delete_document_vector_db(file_name: str):
+    try:
+        CURRENT_FILE = Path(__file__).resolve()
+        ROOT_DIR = CURRENT_FILE.parents[2]
+        chroma_db_dir = ROOT_DIR / "chroma_db"
+        bm25_save_path = ROOT_DIR / "bm25_index.pkl"
+
+        vectorstore = Chroma(
+            persist_directory=str(chroma_db_dir),
+            embedding_function=rag_models_instance.embeddings,
+            collection_name="cslt_collection"
+        )
+
+        vectorstore._collection.delete(where={"source": file_name})
+        print(f"[*] Đã xóa toàn bộ vector của '{file_name}' khỏi ChromaDB.")
+
+        bm25 = rag_models_instance.bm25_retriever
+        if bm25 and hasattr(bm25, 'docs'):
+            remaining_docs = [
+                doc for doc in bm25.docs
+                if doc.metadata.get("source") != file_name
+            ]
+
+            if remaining_docs:
+                new_bm25 = BM25Retriever.from_documents(remaining_docs)
+                rag_models_instance.bm25_retriever = new_bm25  # Cập nhật model đang chạy trên RAM
+
+                with open(bm25_save_path, 'wb') as f:
+                    pickle.dump(new_bm25, f)
+                print(f"Đã xóa khỏi BM25 và Build lại thành công.")
+            else:
+                rag_models_instance.bm25_retriever = None
+                if bm25_save_path.exists():
+                    bm25_save_path.unlink()  # Xóa luôn file pkl
+                print(f"CSDL rỗng, đã xóa file BM25.")
+
+    except Exception as e:
+        print(f"[LỖI] Xóa dữ liệu AI thất bại: {str(e)}")
 
 
 class DocumentService:
@@ -219,14 +263,16 @@ class DocumentService:
                 detail=f"Không thể cập nhật tài liệu: {str(e)}",
             )
 
-    async def delete_document(self, document_id: int):
+    async def delete_document(self, document_id: int, background_tasks: BackgroundTasks = None):
         try:
             db_document = await self.get_document_by_id(document_id)
             if not db_document:
                 raise Exception(f"Không tìm thấy document với id: {document_id}")
-
+            file_name = db_document.file_name
             await self.session.delete(db_document)
             await self.session.commit()
+            if background_tasks and file_name:
+                background_tasks.add_task(delete_document_vector_db, file_name)
             return True
         except Exception as e:
             await self.session.rollback()
