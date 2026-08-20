@@ -1,5 +1,6 @@
 from fastapi import FastAPI
-
+from fastapi import WebSocket, WebSocketDisconnect
+from app.core.websocket import manager
 from app.routers import user_router, subject_router, question_router, quiz_router, chat_router, \
     stats_router, chat_message_router, chat_session_router, quiz_attempt_router
 from app.routers.document_router import router as document_router
@@ -25,3 +26,12 @@ app.include_router(chat_message_router.router, prefix="/api")
 app.include_router(chat_session_router.router, prefix="/api")
 app.include_router(quiz_attempt_router.router, prefix="/api")
 
+
+@app.websocket("/ws/notifications")
+async def websocket_endpoint(websocket: WebSocket):
+    await manager.connect(websocket)
+    try:
+        while True:
+            data = await websocket.receive_text()
+    except WebSocketDisconnect:
+        manager.disconnect(websocket)
