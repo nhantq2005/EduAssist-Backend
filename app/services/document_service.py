@@ -6,6 +6,7 @@ from sqlalchemy import cast, Date
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
 
+from app.core.websocket import manager
 from app.db.session import AsyncSessionLocal
 from app.models.document import Document, ProcessingStatus
 from app.rag.processing_pipeline import process_document_pipeline
@@ -32,10 +33,21 @@ async def run_pipeline_background_task(document_id: int, file_bytes: bytes, file
 
             document.process_status = ProcessingStatus.COMPLETED
             await bg_session.commit()
+
+            await manager.broadcast({
+                "type": "DOCUMENT_COMPLETED",
+                "document_id": document_id,
+                "message": f"Tài liệu {file_name} đã xử lý xong!"
+            })
             logger.info(f"Đã xử lý xong tài liệu ID: {document_id}")
 
         except Exception as e:
-            logger.error(f"Lỗi khi xử lý RAG tài liệu {document_id}: {str(e)}")
+            await manager.broadcast({
+                "type": "DOCUMENT_FAILED",
+                "document_id": document_id,
+                "message": f"Xử lý lỗi: {file_name}"
+            })
+            logger.error(f"Lỗi khi xử lý tài liệu {document_id}: {str(e)}")
             if 'document' in locals() and document:
                 document.process_status = ProcessingStatus.FAILED
                 await bg_session.commit()
