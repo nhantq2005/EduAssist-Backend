@@ -1,40 +1,29 @@
-import pickle
 from pathlib import Path
-
 from langchain_community.vectorstores import Chroma
-from langchain_huggingface import HuggingFaceEmbeddings
 from langchain_classic.retrievers import EnsembleRetriever
 from langchain_classic.retrievers import ContextualCompressionRetriever
 from langchain_classic.retrievers.document_compressors import CrossEncoderReranker
-from langchain_community.cross_encoders import HuggingFaceCrossEncoder
-
+from app.rag.model import rag_models_instance
 
 def get_hybrid_reranked_retriever(top_k: int = 3):
     CURRENT_FILE = Path(__file__).resolve()
     ROOT_DIR = CURRENT_FILE.parents[3] if len(CURRENT_FILE.parents) > 3 else CURRENT_FILE.parent
     chroma_db_dir = ROOT_DIR / "chroma_db"
-    bm25_save_path = ROOT_DIR / "bm25_index.pkl"
 
-    # KHOI TAO EMBEDDING MODE VA CHROMADB
-    embeddings = HuggingFaceEmbeddings(
-        model_name="BAAI/bge-m3",
-        model_kwargs={'device': 'cpu'},
-        encode_kwargs={'normalize_embeddings': True}
-    )
+    # LAY EMBEDDING TỪ SINGLETON
+    embeddings = rag_models_instance.embeddings
+    
     vectorstore = Chroma(
         persist_directory=str(chroma_db_dir),
         embedding_function=embeddings,
         collection_name="cslt_collection"
     )
+    print("Công thức tính độ tương đồng của Chroma:", vectorstore._collection.metadata)
     # LAY KET QUA (LAY GAP 2)
     chroma_retriever = vectorstore.as_retriever(search_kwargs={"k": top_k * 2})
 
-    # 3. Khởi tạo Sparse Retriever (BM25)
-    if not bm25_save_path.exists():
-        raise FileNotFoundError(f"Chưa tìm thấy BM25 index tại: {bm25_save_path}. Hãy chạy script build trước.")
-
-    with open(bm25_save_path, 'rb') as f:
-        bm25_retriever = pickle.load(f)
+    # LAY BM25 TỪ SINGLETON
+    bm25_retriever = rag_models_instance.bm25_retriever
     bm25_retriever.k = top_k * 2
 
     # ENSEMBLE RETRIEVER (50/50)
@@ -43,13 +32,13 @@ def get_hybrid_reranked_retriever(top_k: int = 3):
         weights=[0.5, 0.5]
     )
 
-    # 5. Khởi tạo Re-ranker (Cross-Encoder)
-    cross_encoder = HuggingFaceCrossEncoder(model_name="BAAI/bge-reranker-v2-m3")
+    # LAY RE-RANKER TỪ SINGLETON
+    cross_encoder = rag_models_instance.cross_encoder
 
     # Cấu hình bộ nén: Chấm điểm và chỉ giữ lại số lượng tài liệu đúng bằng top_k
     compressor = CrossEncoderReranker(model=cross_encoder, top_n=top_k)
 
-    # 6. Bọc bộ tìm kiếm tổng hợp qua lớp Nén (Compression)
+    # Bọc bộ tìm kiếm tổng hợp qua lớp Nén (Compression)
     compression_retriever = ContextualCompressionRetriever(
         base_compressor=compressor,
         base_retriever=ensemble_retriever

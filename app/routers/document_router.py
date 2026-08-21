@@ -109,9 +109,10 @@ async def update_document(
 @require_role(["ADMIN", "LECTURER"])
 async def delete_document(
         document_id: int,
+        background_tasks: BackgroundTasks,
         document_service: DocumentService = Depends(get_document_service)
 ):
-    document = await document_service.delete_document(document_id=document_id)
+    document = await document_service.delete_document(document_id=document_id, background_tasks=background_tasks)
     if not document:
         raise HTTPException(status_code=404, detail="Không tìm thấy tài liệu để xóa")
     return None
