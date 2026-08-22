@@ -12,12 +12,8 @@ def get_hybrid_reranked_retriever(top_k: int = 3):
 
     # LAY EMBEDDING TỪ SINGLETON
     embeddings = rag_models_instance.embeddings
-    
-    vectorstore = Chroma(
-        persist_directory=str(chroma_db_dir),
-        embedding_function=embeddings,
-        collection_name="cslt_collection"
-    )
+    vectorstore = rag_models_instance.vectorstore
+
     print("Công thức tính độ tương đồng của Chroma:", vectorstore._collection.metadata)
     # LAY KET QUA (LAY GAP 2)
     chroma_retriever = vectorstore.as_retriever(search_kwargs={"k": top_k * 2})

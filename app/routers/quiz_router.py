@@ -65,7 +65,7 @@ async def get_quizzes_by_subject(
         offset: Optional[int] = 0,
         quiz_service: QuizService = Depends(get_quiz_service)
 ):
-    params = {limit: limit, offset: offset}
+    params = {"limit": limit, "offset": offset}
     quizzes = await quiz_service.get_quiz_by_subject(subject_id=subject_id, params=params)
     if not quizzes:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy quiz nào cho môn học")

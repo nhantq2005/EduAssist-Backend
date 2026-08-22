@@ -42,8 +42,10 @@ def group_blocks_from_memory(records: List[Dict[str, Any]]) -> Dict[str, Any]:
 
 def create_langchain_documents(grouped_sections: Dict[str, Any]) -> List[Document]:
     text_splitter = RecursiveCharacterTextSplitter(
-        chunk_size=800,
-        chunk_overlap=100,
+        # chunk_size=800,
+        # chunk_overlap=100,
+        chunk_size=500,
+        chunk_overlap=50,
         separators=["\n\n", "\n", ".", " ", ""]
     )
 
