@@ -37,7 +37,7 @@ async def get_my_quiz_attempts(
         current_user: User = Depends(get_current_user),
         quiz_attempt_service: QuizAttemptService = Depends(get_quiz_attempt_service),
 ):
-    params = {limit: limit, offset: offset}
+    params = {"limit": limit, "offset": offset}
     try:
         attempts = await quiz_attempt_service.get_user_quiz_attempts(
             user_id=current_user.id,
