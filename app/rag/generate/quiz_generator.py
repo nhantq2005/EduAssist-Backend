@@ -1,26 +1,21 @@
-import json
 from typing import List
-from pydantic import BaseModel, Field
+from pydantic import BaseModel
 from langchain_google_genai import ChatGoogleGenerativeAI
 from langchain_core.prompts import PromptTemplate
 from langchain_core.output_parsers import PydanticOutputParser
 from dotenv import load_dotenv
-
+from app.schemas.question import QuestionRequest
 from app.rag.generate.hybrid_retriever import get_hybrid_reranked_retriever
 from app.rag.generate.answer_generator import format_docs
+from app.schemas.quiz import QuizData
 
 load_dotenv()
 
-from app.schemas.question import QuestionRequest
 
-class QuizData(BaseModel):
-    questions: List[QuestionRequest]
+
 
 async def generate_quiz_from_topic(topic: str, num_questions: int = 5) -> QuizData:
-    llm = ChatGoogleGenerativeAI(
-        model="gemini-3.5-flash",
-        temperature=0.3
-    )
+    llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0.3)
 
     # TIM DOC CO CHU DE LIEN QUAN
     retriever = get_hybrid_reranked_retriever(top_k=5)
