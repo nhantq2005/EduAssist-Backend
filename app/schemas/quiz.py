@@ -1,6 +1,8 @@
 from datetime import datetime
-from typing import Optional
+from typing import Optional, List
 from pydantic import BaseModel, ConfigDict
+
+from .question import QuestionRequest
 from .subject import SubjectResponse
 from app.models.quiz import DifficultyLevel, SourceType
 
@@ -11,6 +13,9 @@ class QuizCreate(BaseModel):
     difficulty_level: DifficultyLevel
     subject_id: Optional[int]
     is_public: bool = True
+
+class QuizData(BaseModel):
+    questions: List[QuestionRequest]
 
 class QuizGenerateRequest(BaseModel):
     topic: str
