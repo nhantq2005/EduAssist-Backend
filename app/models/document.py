@@ -1,7 +1,8 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import String, DateTime, Enum as SqlEnum, Integer, ForeignKey
+from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy import Enum as SqlEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -28,8 +29,6 @@ class Document(Base):
 
     lecturer: Mapped["User"] = relationship(back_populates="documents")
     subject: Mapped["Subject"] = relationship(back_populates="documents")
-
-    document_chunks: Mapped[list["DocumentChunk"]] = relationship(back_populates="document")
 
     def __str__(self):
         return self.title

@@ -1,6 +1,8 @@
 from datetime import datetime
 from enum import Enum
-from sqlalchemy import String, Boolean, DateTime, Enum as SqlEnum, Integer
+
+from sqlalchemy import Boolean, DateTime, Integer, String
+from sqlalchemy import Enum as SqlEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -27,11 +29,10 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
-    documents: Mapped[list["Document"]] = relationship(back_populates="lecturer")
-    attempt_quizzes: Mapped[list["QuizAttempt"]] = relationship(back_populates="user")
-    subjects: Mapped[list["Subject"]] = relationship(back_populates="lecturer")
-    notification_reads: Mapped[list["NotificationRead"]] = relationship(back_populates="user")
-    chat_sessions: Mapped[list["ChatSession"]] = relationship(back_populates="user")
+    documents: Mapped[list["Document"]] = relationship(back_populates="lecturer", cascade="all, delete-orphan")
+    attempt_quizzes: Mapped[list["QuizAttempt"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    subjects: Mapped[list["Subject"]] = relationship(back_populates="lecturer", cascade="all, delete-orphan")
+    chat_sessions: Mapped[list["ChatSession"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
     def __str__(self):
         return self.name

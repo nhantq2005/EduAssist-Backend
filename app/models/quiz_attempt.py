@@ -1,6 +1,6 @@
 from datetime import datetime
 
-from sqlalchemy import Double, Boolean, DateTime, Integer, ForeignKey
+from sqlalchemy import Boolean, DateTime, Double, ForeignKey, Integer
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -22,4 +22,4 @@ class QuizAttempt(Base):
     user: Mapped["User"] = relationship(back_populates="attempt_quizzes")
     quiz: Mapped["Quiz"] = relationship(back_populates="quiz_attempts")
 
-    user_answers: Mapped[list["UserAnswer"]] = relationship(back_populates="quiz_attempt")
+    user_answers: Mapped[list["UserAnswer"]] = relationship(back_populates="quiz_attempt", cascade="all, delete-orphan")
