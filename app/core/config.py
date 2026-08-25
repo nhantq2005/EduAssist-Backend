@@ -1,9 +1,7 @@
-from pathlib import Path
-
-import cloudinary
-from pydantic_settings import BaseSettings, SettingsConfigDict
 import os
+import cloudinary
 from dotenv import load_dotenv
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
 load_dotenv()
 
@@ -18,15 +16,7 @@ class Settings(BaseSettings):
     ACCESS_TOKEN_EXPIRE_MINUTES: int = 60
     REFRESH_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 30
 
-    # UPLOAD_DIR: Path = Path("storage/uploads")
-    # EXTRACTED_DIR: Path = Path("storage/extracted")
-    # PROCESSED_DIR: Path = Path("storage/processed")
-    #
-    # EMBEDDING_MODEL: str = "BAAI/bge-m3"
-    # EMBEDDING_BATCH_SIZE: int = 16
-    #
-    # CHUNK_SIZE: int = 700
-    # CHUNK_OVERLAP: int = 100
+    GOOGLE_CLIENT_ID:str=""
 
     model_config = SettingsConfigDict(
         env_file=".env",
