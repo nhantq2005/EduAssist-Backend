@@ -69,7 +69,6 @@ class UserService:
                 User.email == email,
             )
         )
-
         result = await self.session.execute(stmt)
         return result.scalars().first()
 
@@ -89,6 +88,21 @@ class UserService:
             await self.session.rollback()
             print(f"Lỗi: {e}")
 
+    async def change_password(self, user_id: int, old_password: str, new_password: str):
+        db_user = await self.get_user_by_id(user_id)
+        if not db_user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy người dùng.")
+
+        if not verify_password(old_password, db_user.password):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Mật khẩu cũ không chính xác.")
+        hashed_new_password = get_password_hash(new_password)
+        db_user.password = hashed_new_password
+        try:
+            await self.session.commit()
+            return True
+        except SQLAlchemyError:
+            await self.session.rollback()
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Lỗi hệ thống khi lưu mật khẩu mới.")
 
     async def login_with_google(self, google_login_request: GoogleLoginRequest):
         try:
@@ -100,7 +114,7 @@ class UserService:
             )
 
             email = id_info.get("email")
-            name = id_info.get("name","")
+            name = id_info.get("name", "")
 
             if not email:
                 raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không thể lấy email")
@@ -113,7 +127,7 @@ class UserService:
                 random_password = str(uuid.uuid4())
                 hashed_password = get_password_hash(random_password)
                 username = email.split("@")[0]
-                
+
                 user_data = User(
                     name=name,
                     gender="MALE",
@@ -122,11 +136,11 @@ class UserService:
                     password=hashed_password,
                     role="STUDENT"
                 )
-                
+
                 user = await self.create_user(user_data=user_data)
 
             access_token = create_access_token(data={"sub": user.username})
             return {"access_token": access_token, "token_type": "bearer"}
-            
+
         except ValueError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token không hợp lệ")
