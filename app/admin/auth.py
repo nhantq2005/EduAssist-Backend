@@ -1,10 +1,11 @@
+import secrets
 from sqladmin.authentication import AuthenticationBackend
-from starlette.requests import Request
 from sqlalchemy import select
+from starlette.requests import Request
+from app.core.security import verify_password
 from app.db.session import AsyncSessionLocal
 from app.models.user import User, UserRole
-from app.core.security import verify_password
-import secrets
+
 
 class AdminAuth(AuthenticationBackend):
     async def login(self, request: Request) -> bool:
