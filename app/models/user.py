@@ -33,6 +33,7 @@ class User(Base):
     attempt_quizzes: Mapped[list["QuizAttempt"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     subjects: Mapped[list["Subject"]] = relationship(back_populates="lecturer", cascade="all, delete-orphan")
     chat_sessions: Mapped[list["ChatSession"]] = relationship(back_populates="user", cascade="all, delete-orphan")
+    flashcard_sets: Mapped[list["FlashcardSet"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 
     def __str__(self):
         return self.name

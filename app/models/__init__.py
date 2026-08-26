@@ -9,6 +9,8 @@ from app.models.quiz_attempt import QuizAttempt
 from app.models.subject import Subject
 from app.models.user import User
 from app.models.user_answer import UserAnswer
+from app.models.flashcard import Flashcard
+from app.models.flashcard_set import FlashcardSet
 
 __all__ = [
     "Base",
@@ -22,5 +24,7 @@ __all__ = [
     "Subject",
     "User",
     "UserAnswer",
+    "Flashcard",
+    "FlashcardSet",
 ]
 

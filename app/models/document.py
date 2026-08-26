@@ -29,6 +29,7 @@ class Document(Base):
 
     lecturer: Mapped["User"] = relationship(back_populates="documents")
     subject: Mapped["Subject"] = relationship(back_populates="documents")
+    flashcard_sets: Mapped[list["FlashcardSet"]] = relationship(back_populates="document", cascade="all, delete-orphan")
 
     def __str__(self):
         return self.title
