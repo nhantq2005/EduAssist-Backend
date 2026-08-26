@@ -16,3 +16,6 @@ class Option(Base):
 
     user_answers: Mapped[list["UserAnswer"]] = relationship(back_populates="option")
 
+    def __str__(self) -> str:
+        return self.content
+

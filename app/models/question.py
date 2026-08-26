@@ -20,3 +20,6 @@ class Question(Base):
 
     options: Mapped[list["Option"]] = relationship(back_populates="question", cascade="all, delete-orphan")
     user_answers: Mapped[list["UserAnswer"]] = relationship(back_populates="question", cascade="all, delete-orphan")
+
+    def __str__(self) -> str:
+        return self.question
