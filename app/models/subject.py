@@ -1,5 +1,6 @@
 from datetime import datetime
-from sqlalchemy import String, DateTime, Integer, ForeignKey
+
+from sqlalchemy import DateTime, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -17,9 +18,8 @@ class Subject(Base):
 
     lecturer: Mapped["User"] = relationship(back_populates="subjects")
 
-    notifications:Mapped[list["Notification"]] = relationship(back_populates="subject")
-    documents: Mapped[list["Document"]] = relationship(back_populates="subject")
-    quizzes: Mapped[list["Quiz"]] = relationship(back_populates="subject")
+    documents: Mapped[list["Document"]] = relationship(back_populates="subject", cascade="all, delete-orphan")
+    quizzes: Mapped[list["Quiz"]] = relationship(back_populates="subject", cascade="all, delete-orphan")
 
     def __str__(self):
         return self.name

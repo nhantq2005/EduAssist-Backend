@@ -1,13 +1,14 @@
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from sqlalchemy import engine_from_config, pool
 
 from alembic import context
-from app.models import Base
 
 # --- THÊM 2 DÒNG NÀY ĐỂ ĐẢM BẢO MODEL ĐƯỢC LOAD ---
-from app.core.config import settings # Điều chỉnh đường dẫn import settings cho đúng với project của bạn
+from app.core.config import (
+    settings,  # Điều chỉnh đường dẫn import settings cho đúng với project của bạn
+)
+from app.models import Base
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.

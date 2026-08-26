@@ -1,20 +1,19 @@
+import jwt
 from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from sqlalchemy.ext.asyncio import AsyncSession
-import jwt
+from app.core.config import settings
 from app.db.session import get_db
-from app.services.quiz_attempt_service import QuizAttemptService
 from app.services.chat_message_service import ChatMessageService
 from app.services.chat_session_service import ChatSessionService
 from app.services.document_service import DocumentService
 from app.services.question_service import QuestionService
+from app.services.quiz_attempt_service import QuizAttemptService
+from app.services.quiz_service import QuizService
 from app.services.rag_service import RagService
 from app.services.stats_service import StatsService
 from app.services.subject_service import SubjectService
 from app.services.user_service import UserService
-from app.services.quiz_service import QuizService
-from app.core.config import settings
-
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/users/login")
 
 

@@ -1,13 +1,12 @@
 from fastapi import FastAPI
+from sqladmin import Admin, ModelView
 from sqladmin.filters import BooleanFilter, StaticValuesFilter
 from sqlalchemy import select
-
 from app.admin.auth import AdminAuth
-from sqladmin import Admin, ModelView
 from app.db.session import engine
 from app.models import Document
-from app.models.user import User, UserRole
 from app.models.subject import Subject
+from app.models.user import User, UserRole
 
 
 class UserAdmin(ModelView, model=User):

@@ -1,7 +1,8 @@
 from datetime import datetime
 from enum import Enum
 
-from sqlalchemy import String, DateTime, Enum as SqlEnum, Integer, ForeignKey
+from sqlalchemy import DateTime, ForeignKey, Integer, String
+from sqlalchemy import Enum as SqlEnum
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from app.models.base import Base
@@ -34,8 +35,8 @@ class Quiz(Base):
     subject:Mapped["Subject"] = relationship(back_populates="quizzes")
     creator: Mapped["User"] = relationship()
 
-    quiz_attempts: Mapped[list["QuizAttempt"]] = relationship(back_populates="quiz")
-    questions: Mapped[list["Question"]] = relationship(back_populates="quiz")
+    quiz_attempts: Mapped[list["QuizAttempt"]] = relationship(back_populates="quiz", cascade="all, delete-orphan")
+    questions: Mapped[list["Question"]] = relationship(back_populates="quiz", cascade="all, delete-orphan")
 
     def __str__(self) -> str:
         return f"{self.title}"

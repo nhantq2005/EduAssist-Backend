@@ -1,6 +1,8 @@
 from datetime import datetime
-from sqlalchemy import String, DateTime, Double, Integer, ForeignKey
+
+from sqlalchemy import DateTime, Double, ForeignKey, Integer, String
 from sqlalchemy.orm import Mapped, mapped_column, relationship
+
 from app.models.base import Base
 
 
@@ -18,3 +20,6 @@ class Question(Base):
 
     options: Mapped[list["Option"]] = relationship(back_populates="question", cascade="all, delete-orphan")
     user_answers: Mapped[list["UserAnswer"]] = relationship(back_populates="question", cascade="all, delete-orphan")
+
+    def __str__(self) -> str:
+        return self.question

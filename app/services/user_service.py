@@ -1,10 +1,14 @@
-from sqlalchemy import select, or_
+import uuid
+from fastapi import HTTPException, status
+from google.oauth2 import id_token
+from google.auth.transport import requests as google_requests
+from sqlalchemy import or_, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
-
-from app.core.security import get_password_hash, verify_password
-# Giả sử bạn import model User từ models.user
+from app.core.config import settings
+from app.core.security import get_password_hash, verify_password, create_access_token
 from app.models.user import User
+from app.schemas.user import GoogleLoginRequest
 
 
 class UserService:
@@ -34,7 +38,6 @@ class UserService:
             self.session.add(new_user)
             await self.session.commit()
             await self.session.refresh(new_user)
-
             return new_user
 
         except SQLAlchemyError:
@@ -66,6 +69,78 @@ class UserService:
                 User.email == email,
             )
         )
-
         result = await self.session.execute(stmt)
         return result.scalars().first()
+
+    async def update_user(self, user_id: int, update_data: dict):
+        try:
+            stm = select(User).where(User.id == user_id)
+            result = await self.session.execute(stm)
+            user = result.scalar_one_or_none()
+            if not user:
+                return None
+            for key, value in update_data.items():
+                setattr(user, key, value)
+            await self.session.commit()
+            await self.session.refresh(user)
+            return user
+        except Exception as e:
+            await self.session.rollback()
+            print(f"Lỗi: {e}")
+
+    async def change_password(self, user_id: int, old_password: str, new_password: str):
+        db_user = await self.get_user_by_id(user_id)
+        if not db_user:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy người dùng.")
+
+        if not verify_password(old_password, db_user.password):
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Mật khẩu cũ không chính xác.")
+        hashed_new_password = get_password_hash(new_password)
+        db_user.password = hashed_new_password
+        try:
+            await self.session.commit()
+            return True
+        except SQLAlchemyError:
+            await self.session.rollback()
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Lỗi hệ thống khi lưu mật khẩu mới.")
+
+    async def login_with_google(self, google_login_request: GoogleLoginRequest):
+        try:
+            id_info = id_token.verify_oauth2_token(
+                id_token=google_login_request.token,
+                request=google_requests.Request(),
+                audience=settings.GOOGLE_CLIENT_ID,
+                clock_skew_in_seconds=10
+            )
+
+            email = id_info.get("email")
+            name = id_info.get("name", "")
+
+            if not email:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không thể lấy email")
+
+            existing_user = await self.get_user_by_username(email)
+
+            if existing_user:
+                user = existing_user
+            else:
+                random_password = str(uuid.uuid4())
+                hashed_password = get_password_hash(random_password)
+                username = email.split("@")[0]
+
+                user_data = User(
+                    name=name,
+                    gender="MALE",
+                    username=username,
+                    email=email,
+                    password=hashed_password,
+                    role="STUDENT"
+                )
+
+                user = await self.create_user(user_data=user_data)
+
+            access_token = create_access_token(data={"sub": user.username})
+            return {"access_token": access_token, "token_type": "bearer"}
+
+        except ValueError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token không hợp lệ")
