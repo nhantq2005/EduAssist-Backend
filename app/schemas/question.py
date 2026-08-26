@@ -1,23 +1,24 @@
-from pydantic import BaseModel, ConfigDict, Field
 from datetime import datetime
-from typing import List, Optional
-from app.schemas.option import OptionResponse, OptionRequest
+
+from pydantic import BaseModel, ConfigDict, Field
+
+from app.schemas.option import OptionRequest, OptionResponse
 
 
 class QuestionRequest(BaseModel):
     question: str
     # score: float = Field(default=1.0, description="Điểm của câu hỏi")
-    quiz_id: Optional[int] = Field(default=None)
-    explanation: Optional[str] = Field(default=None)
-    options: List[OptionRequest]
+    quiz_id: int | None = Field(default=None)
+    explanation: str | None = Field(default=None)
+    options: list[OptionRequest]
 
 class QuestionResponse(BaseModel):
     id: int
     question: str
-    explanation: Optional[str] = None
-    score : Optional[float] = None
+    explanation: str | None = None
+    score : float | None = None
     created_date: datetime
-    quiz_id: Optional[int] = None
-    options: List[OptionResponse]
+    quiz_id: int | None = None
+    options: list[OptionResponse]
 
     model_config = ConfigDict(from_attributes=True)

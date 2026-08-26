@@ -1,27 +1,28 @@
 from datetime import datetime
-from typing import Optional
+
 from pydantic import BaseModel, ConfigDict
 
 from app.schemas.quiz import QuizResponse
 from app.schemas.user_answer import UserAnswerResponse
+
 
 class QuizAttemptCreate(BaseModel):
     total_score: float
     is_completed: bool = False
     total_questions: int
     correct_count: int
-    time_start: Optional[datetime] = None
-    time_submitted: Optional[datetime] = None
+    time_start: datetime | None = None
+    time_submitted: datetime | None = None
     user_id: int
     quiz_id: int
 
 class QuizAttemptUpdate(BaseModel):
-    total_score: Optional[float] = None
-    is_completed: Optional[bool] = None
-    total_questions: Optional[int] = None
-    correct_count: Optional[int] = None
-    time_start: Optional[datetime] = None
-    time_submitted: Optional[datetime] = None
+    total_score: float | None = None
+    is_completed: bool | None = None
+    total_questions: int | None = None
+    correct_count: int | None = None
+    time_start: datetime | None = None
+    time_submitted: datetime | None = None
 
 class QuizAttemptResponse(BaseModel):
     id: int
@@ -29,8 +30,8 @@ class QuizAttemptResponse(BaseModel):
     is_completed: bool
     total_questions: int
     correct_count: int
-    time_start: Optional[datetime] = None
-    time_submitted: Optional[datetime] = None
+    time_start: datetime | None = None
+    time_submitted: datetime | None = None
     created_date: datetime
     user_id: int
     quiz: QuizResponse
@@ -48,4 +49,4 @@ class StudentAnswer(BaseModel):
 
 class QuizSubmitRequest(BaseModel):
     answers: list[StudentAnswer]
-    time_start: Optional[datetime] = None
+    time_start: datetime | None = None

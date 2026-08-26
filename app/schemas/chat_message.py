@@ -1,5 +1,6 @@
-from typing import Optional
+
 from pydantic import BaseModel, ConfigDict
+
 
 class ChatMessageCreate(BaseModel):
     question: str
@@ -11,8 +12,8 @@ class ChatMessageRequest(BaseModel):
     chat_session_id: int
 
 class ChatMessageUpdate(BaseModel):
-    question: Optional[str] = None
-    answer: Optional[str] = None
+    question: str | None = None
+    answer: str | None = None
 
 class ChatMessageResponse(BaseModel):
     id: int
