@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List, Optional
-from app.api.dependencies import get_question_service, get_current_user, get_quiz_service
+from app.api.dependencies import get_current_user, get_question_service, get_quiz_service
 from app.core.permissions import require_role
 from app.models import User
 from app.schemas.question import QuestionRequest, QuestionResponse
@@ -18,10 +17,10 @@ router = APIRouter(tags=["Questions"])
 # ):
 #     return await service.create_question(question_request=question)
 
-@router.post("/questions", response_model=List[QuestionResponse], status_code=status.HTTP_201_CREATED)
+@router.post("/questions", response_model=list[QuestionResponse], status_code=status.HTTP_201_CREATED)
 @require_role(["ADMIN", "LECTURER"])
 async def create_questions(
-        questions_request: List[QuestionRequest],
+        questions_request: list[QuestionRequest],
         current_user: User = Depends(get_current_user),
         question_service: QuestionService = Depends(get_question_service),
         quiz_service: QuizService = Depends(get_quiz_service)
@@ -42,12 +41,12 @@ async def create_questions(
     return await question_service.create_questions(list_questions_request=questions_request)
 
 
-@router.get("/quizzes/{quiz_id}/questions", response_model=List[QuestionResponse], status_code=status.HTTP_200_OK)
+@router.get("/quizzes/{quiz_id}/questions", response_model=list[QuestionResponse], status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def get_questions_by_quiz(
         quiz_id: int,
-        limit: Optional[int] = None,
-        offset: Optional[int] = None,
+        limit: int | None = None,
+        offset: int | None = None,
         current_user: User = Depends(get_current_user),
         service: QuestionService = Depends(get_question_service)
 ):
@@ -55,11 +54,11 @@ async def get_questions_by_quiz(
     return await service.get_question_by_quiz(quiz_id=quiz_id, params=params)
 
 
-@router.get("/questions", response_model=List[QuestionResponse], status_code=status.HTTP_200_OK)
+@router.get("/questions", response_model=list[QuestionResponse], status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER"])
 async def get_questions(
-        limit: Optional[int] = None,
-        offset: Optional[int] = None,
+        limit: int | None = None,
+        offset: int | None = None,
         current_user: User = Depends(get_current_user),
         service: QuestionService = Depends(get_question_service)
 ):

@@ -1,11 +1,9 @@
 from datetime import date
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status, Form
-from app.api.dependencies import get_document_service, get_current_user
+from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPException, UploadFile, status
+from app.api.dependencies import get_current_user, get_document_service
 from app.core.permissions import require_role
 from app.models import User
-from app.schemas.document import DocumentRequest, DocumentResponse, DocumentUpdateRequest
-from fastapi import UploadFile, File, BackgroundTasks
+from app.schemas.document import DocumentRequest,DocumentResponse, DocumentUpdateRequest
 from app.services.document_service import DocumentService
 
 router = APIRouter(tags=["documents"])
@@ -35,11 +33,11 @@ async def create_document(
     return document
 
 
-@router.get("/subjects/{subject_id}/documents", response_model=List[DocumentResponse], status_code=status.HTTP_200_OK)
+@router.get("/subjects/{subject_id}/documents", response_model=list[DocumentResponse], status_code=status.HTTP_200_OK)
 async def get_documents_by_subject(
         subject_id: int,
-        limit: Optional[int] = None,
-        offset: Optional[int] = None,
+        limit: int | None = None,
+        offset: int | None = None,
         document_service: DocumentService = Depends(get_document_service)
 ):
     params = {
@@ -50,12 +48,12 @@ async def get_documents_by_subject(
     return documents
 
 
-@router.get("/documents", response_model=List[DocumentResponse], status_code=status.HTTP_200_OK)
+@router.get("/documents", response_model=list[DocumentResponse], status_code=status.HTTP_200_OK)
 async def get_all_documents(
-        title: Optional[str] = None,
-        created_date: Optional[date] = None,
-        limit: Optional[int] = None,
-        offset: Optional[int] = None,
+        title: str | None = None,
+        created_date: date | None = None,
+        limit: int | None = None,
+        offset: int | None = None,
         document_service: DocumentService = Depends(get_document_service)
 ):
     params = {
@@ -110,9 +108,9 @@ async def update_document(
 async def delete_document(
         document_id: int,
         background_tasks: BackgroundTasks,
+        current_user: User = Depends(get_current_user),
         document_service: DocumentService = Depends(get_document_service)
 ):
     document = await document_service.delete_document(document_id=document_id, background_tasks=background_tasks)
     if not document:
         raise HTTPException(status_code=404, detail="Không tìm thấy tài liệu để xóa")
-    return None

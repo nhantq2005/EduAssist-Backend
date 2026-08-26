@@ -1,4 +1,3 @@
-from typing import List
 from fastapi import APIRouter, Depends, status
 from app.api.dependencies import get_stats_service
 from app.core.permissions import require_role
@@ -47,7 +46,7 @@ async def count_students(stats_service: StatsService = Depends(get_stats_service
     return await stats_service.count_student()
 
 
-@router.get("/stats-docs-by-subject", response_model=List[DocumentCountBySubjectResponse], status_code=status.HTTP_200_OK)
+@router.get("/stats-docs-by-subject", response_model=list[DocumentCountBySubjectResponse], status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER"])
 async def count_documents_by_subject(stats_service: StatsService = Depends(get_stats_service)):
     return await stats_service.count_documents_by_subject()

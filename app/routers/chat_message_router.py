@@ -1,4 +1,3 @@
-from typing import List
 from fastapi import APIRouter, Depends, status
 from app.api.dependencies import get_chat_message_service, get_current_user
 from app.core.permissions import require_role
@@ -9,7 +8,7 @@ from app.services.chat_message_service import ChatMessageService
 router = APIRouter(tags=["ChatMessage"])
 
 
-@router.get("/chat-sessions/{chat_session_id}/chat-message", response_model=List[ChatMessageResponse],
+@router.get("/chat-sessions/{chat_session_id}/chat-message", response_model=list[ChatMessageResponse],
             status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def get_chat_message_by_chat_session_id(
