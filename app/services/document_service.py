@@ -1,22 +1,18 @@
 import logging
 import pickle
-
-from fastapi import UploadFile, Form, File, Depends, HTTPException, status, BackgroundTasks
 from pathlib import Path
-
+from fastapi import BackgroundTasks, HTTPException, UploadFile, status
 from langchain_community.retrievers import BM25Retriever
 from langchain_community.vectorstores import Chroma
-from sqlalchemy import cast, Date
+from sqlalchemy import Date, cast
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
-
 from app.core.websocket import manager
 from app.db.session import AsyncSessionLocal
 from app.models.document import Document, ProcessingStatus
 from app.rag.model import rag_models_instance
 from app.rag.processing_pipeline import process_document_pipeline
 from app.schemas.document import DocumentRequest, DocumentUpdateRequest
-from typing import List, Optional
 from app.utils.cloudinary_utils import upload_file_to_cloudinary
 
 ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".ppt", ".pptx"}
@@ -52,7 +48,7 @@ async def run_pipeline_background_task(document_id: int, file_bytes: bytes, file
                 "document_id": document_id,
                 "message": f"Xử lý lỗi: {file_name}"
             })
-            logger.error(f"Lỗi khi xử lý tài liệu {document_id}: {str(e)}")
+            logger.error(f"Lỗi khi xử lý tài liệu {document_id}: {e!s}")
             if 'document' in locals() and document:
                 document.process_status = ProcessingStatus.FAILED
                 await bg_session.commit()
@@ -86,15 +82,15 @@ def delete_document_vector_db(file_name: str):
 
                 with open(bm25_save_path, 'wb') as f:
                     pickle.dump(new_bm25, f)
-                print(f"Đã xóa khỏi BM25 và Build lại thành công.")
+                print("Đã xóa khỏi BM25 và Build lại thành công.")
             else:
                 rag_models_instance.bm25_retriever = None
                 if bm25_save_path.exists():
                     bm25_save_path.unlink()  # Xóa luôn file pkl
-                print(f"CSDL rỗng, đã xóa file BM25.")
+                print("CSDL rỗng, đã xóa file BM25.")
 
     except Exception as e:
-        print(f"[LỖI] Xóa dữ liệu AI thất bại: {str(e)}")
+        print(f"[LỖI] Xóa dữ liệu AI thất bại: {e!s}")
 
 
 class DocumentService:
@@ -155,7 +151,7 @@ class DocumentService:
             await self.session.rollback()
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Không thể tạo tài liệu: {str(e)}",
+                detail=f"Không thể tạo tài liệu: {e!s}",
             )
 
     async def get_document_by_id(self, document_id: int):
@@ -260,7 +256,7 @@ class DocumentService:
             await self.session.rollback()
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Không thể cập nhật tài liệu: {str(e)}",
+                detail=f"Không thể cập nhật tài liệu: {e!s}",
             )
 
     async def delete_document(self, document_id: int, background_tasks: BackgroundTasks = None):

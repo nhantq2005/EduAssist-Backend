@@ -1,14 +1,14 @@
 from datetime import datetime
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio.session import AsyncSession
-from fastapi import HTTPException, status
-from app.models.quiz import Quiz
+from sqlalchemy.orm import selectinload
 from app.models.option import Option
 from app.models.question import Question
+from app.models.quiz import Quiz
 from app.models.quiz_attempt import QuizAttempt
 from app.models.user_answer import UserAnswer
 from app.schemas.quiz_attempt import QuizAttemptCreate
-from sqlalchemy.orm import selectinload
 
 
 class QuizAttemptService:
