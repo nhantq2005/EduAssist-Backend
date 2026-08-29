@@ -1,5 +1,5 @@
 import uuid
-from fastapi import HTTPException, status
+from fastapi import HTTPException, status, UploadFile, File
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from sqlalchemy import or_, select
@@ -9,6 +9,7 @@ from app.core.config import settings
 from app.core.security import get_password_hash, verify_password, create_access_token
 from app.models.user import User
 from app.schemas.user import GoogleLoginRequest
+from app.utils.cloudinary_utils import upload_file_to_cloudinary
 
 
 class UserService:
@@ -20,11 +21,17 @@ class UserService:
         result = await self.session.execute(stm)
         return result.scalar_one_or_none()
 
-    async def create_user(self, user_data: dict):
+    async def create_user(self, user_data: dict, avatar: UploadFile):
         try:
             hashed_password = get_password_hash(
                 user_data["password"]
             )
+
+            avatar_url = None
+
+            if avatar:
+                upload_result = await upload_file_to_cloudinary(avatar, folder="avatars")
+                avatar_url = upload_result.get("secure_url")
 
             new_user = User(
                 name=user_data["name"],
@@ -33,6 +40,7 @@ class UserService:
                 email=str(user_data["email"]).strip().lower(),
                 password=hashed_password,
                 role=user_data.get("role", "STUDENT"),
+                avatar_url=avatar_url
             )
 
             self.session.add(new_user)
@@ -102,7 +110,8 @@ class UserService:
             return True
         except SQLAlchemyError:
             await self.session.rollback()
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Lỗi hệ thống khi lưu mật khẩu mới.")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                detail="Lỗi hệ thống khi lưu mật khẩu mới.")
 
     async def login_with_google(self, google_login_request: GoogleLoginRequest):
         try:
@@ -128,14 +137,14 @@ class UserService:
                 hashed_password = get_password_hash(random_password)
                 username = email.split("@")[0]
 
-                user_data = User(
-                    name=name,
-                    gender="MALE",
-                    username=username,
-                    email=email,
-                    password=hashed_password,
-                    role="STUDENT"
-                )
+                user_data = {
+                    "name": name,
+                    "gender": "MALE",
+                    "username": username,
+                    "email": email,
+                    "password": hashed_password,
+                    "role": "STUDENT"
+                }
 
                 user = await self.create_user(user_data=user_data)
 

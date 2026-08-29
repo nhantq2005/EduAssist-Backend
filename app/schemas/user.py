@@ -27,6 +27,7 @@ class UserResponse(BaseModel):
     email : str
     role : UserRole | None
     is_active : bool
+    avatar_url: str | None = None
 
     model_config = ConfigDict(from_attributes=True)
 
