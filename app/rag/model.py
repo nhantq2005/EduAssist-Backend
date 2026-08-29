@@ -1,7 +1,7 @@
-import torch
-from langchain_huggingface import HuggingFaceEmbeddings
-from langchain_community.cross_encoders import HuggingFaceCrossEncoder
 import pickle
+import torch
+from langchain_community.cross_encoders import HuggingFaceCrossEncoder
+from langchain_huggingface import HuggingFaceEmbeddings
 
 
 class RAGModels:
@@ -9,15 +9,9 @@ class RAGModels:
 
     def __new__(cls):
         if cls._instance is None:
-            cls._instance = super(RAGModels, cls).__new__(cls)
+            cls._instance = super().__new__(cls)
 
-            # cls._instance.embeddings = HuggingFaceEmbeddings(
-            #     model_name="BAAI/bge-m3",
-            #     model_kwargs={'device': 'cpu'},
-            #     encode_kwargs={'normalize_embeddings': True}
-            # )
-
-            device_embedding = "cuda" if torch.cuda.is_available() else "cpu"
+            device_embedding = "cpu"
             cls._instance.embeddings = HuggingFaceEmbeddings(
                 model_name="BAAI/bge-m3",
                 model_kwargs={
@@ -36,8 +30,8 @@ class RAGModels:
                 }
             )
 
-            from pathlib import Path
             import os
+            from pathlib import Path
             CURRENT_FILE = Path(__file__).resolve()
             ROOT_DIR = CURRENT_FILE.parents[2]
             bm25_save_path = ROOT_DIR / "bm25_index.pkl"

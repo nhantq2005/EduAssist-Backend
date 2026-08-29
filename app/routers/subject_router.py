@@ -1,9 +1,8 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from typing import List, Optional
-from app.api.dependencies import get_subject_service, get_current_user
+from app.api.dependencies import get_current_user, get_subject_service
 from app.core.permissions import require_role
 from app.models import User
-from app.schemas.subject import SubjectRequest, SubjectResponse, SubjectDetailRespone
+from app.schemas.subject import SubjectDetailRespone, SubjectRequest, SubjectResponse
 from app.services.subject_service import SubjectService
 
 router = APIRouter(tags=["Subjects"])
@@ -19,11 +18,11 @@ async def create_subject(
     return await subject_service.create_subject(subject_request=subject_request, lecturer_id=current_user.id)
 
 
-@router.get("/subjects", response_model=List[SubjectResponse], status_code=status.HTTP_200_OK)
+@router.get("/subjects", response_model=list[SubjectResponse], status_code=status.HTTP_200_OK)
 async def get_subjects(
-        offset: Optional[int] = 0,
-        limit: Optional[int] = 100,
-        name: Optional[str] = None,
+        offset: int | None = 0,
+        limit: int | None = 100,
+        name: str | None = None,
         subject_service: SubjectService = Depends(get_subject_service)
 ):
     params = {
@@ -70,15 +69,14 @@ async def delete_subject(
     success = await subject_service.delete_subject(subject_id=subject_id)
     if not success:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy môn học")
-    return None
 
 
-@router.get("/users/{lecture_id}/subjects", response_model=List[SubjectResponse], status_code=status.HTTP_200_OK)
+@router.get("/users/{lecture_id}/subjects", response_model=list[SubjectResponse], status_code=status.HTTP_200_OK)
 async def get_subjects_by_lecture(
         lecture_id: int,
-        offset: Optional[int] = 0,
-        limit: Optional[int] = 100,
-        name: Optional[str] = None,
+        offset: int | None = 0,
+        limit: int | None = 100,
+        name: str | None = None,
         subject_service: SubjectService = Depends(get_subject_service)
 ):
     params = {

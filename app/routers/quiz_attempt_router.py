@@ -1,11 +1,9 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from app.api.dependencies import get_current_user, get_quiz_attempt_service
 from app.core.permissions import require_role
 from app.models import User
-from app.schemas.quiz_attempt import QuizAttemptResponse, QuizSubmitRequest
+from app.schemas.quiz_attempt import QuizAttemptDetailResponse, QuizAttemptResponse, QuizSubmitRequest
 from app.services.quiz_attempt_service import QuizAttemptService
-from app.schemas.quiz_attempt import QuizAttemptDetailResponse
 
 router = APIRouter(tags=["Quiz Attempts"])
 
@@ -56,7 +54,7 @@ async def get_quiz_attempt_detail(
         quiz_attempt_service: QuizAttemptService = Depends(get_quiz_attempt_service),
 ):
     try:
-        attempt = await quiz_attempt_service.get_quiz_attempt_by_id(attempt_id=attempt_id)
+        attempt = await quiz_attempt_service.get_quiz_attempt_by_id(quiz_attempt_id=attempt_id)
         if not attempt:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy bài làm")
 

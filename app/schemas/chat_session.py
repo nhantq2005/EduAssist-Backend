@@ -1,6 +1,7 @@
 from datetime import datetime
-from typing import Optional
+
 from pydantic import BaseModel, ConfigDict
+
 
 class ChatSessionRequest(BaseModel):
     title: str
@@ -9,8 +10,8 @@ class ChatSessionRequest(BaseModel):
     # updated_date: datetime
 
 class ChatSessionUpdate(BaseModel):
-    title: Optional[str] = None
-    updated_date: Optional[datetime] = None
+    title: str | None = None
+    updated_date: datetime | None = None
 
 class ChatSessionResponse(BaseModel):
     id: int

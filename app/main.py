@@ -1,12 +1,10 @@
-from fastapi import FastAPI
-from fastapi import WebSocket, WebSocketDisconnect
-from app.core.websocket import manager
-from app.routers import user_router, subject_router, question_router, quiz_router, chat_router, \
-    stats_router, chat_message_router, chat_session_router, quiz_attempt_router
-from app.routers.document_router import router as document_router
+from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 
-from app.core.config import settings
 from app.admin.admin import setup_admin
+from app.core.config import settings
+from app.core.websocket import manager
+from app.routers import chat_message_router, chat_router, chat_session_router, question_router, quiz_attempt_router, quiz_router, stats_router, subject_router, user_router
+from app.routers.document_router import router as document_router
 
 app = FastAPI()
 

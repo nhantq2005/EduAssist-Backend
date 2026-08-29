@@ -1,12 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, Query, status
-from typing import List, Optional
-from app.api.dependencies import get_quiz_service, get_current_user, get_question_service
+from fastapi import APIRouter, Depends, HTTPException, status
+from app.api.dependencies import get_current_user, get_question_service, get_quiz_service
 from app.core.permissions import require_role
 from app.models import User
-from app.schemas.quiz import QuizResponse, QuizCreate, QuizUpdate, QuizGenerateRequest
-from app.services.quiz_service import QuizService
 from app.rag.generate.quiz_generator import QuizData
+from app.schemas.quiz import QuizCreate, QuizGenerateRequest, QuizResponse, QuizUpdate
 from app.services.question_service import QuestionService
+from app.services.quiz_service import QuizService
 
 router = APIRouter(tags=["Quizzes"])
 
@@ -37,14 +36,14 @@ async def generate_quiz_by_ai(
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
-@router.get("/quizzes", response_model=List[QuizResponse], status_code=status.HTTP_200_OK)
+@router.get("/quizzes", response_model=list[QuizResponse], status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def get_quizzes(
-        title: Optional[str] = None,
-        subject_id: Optional[int] = None,
-        difficulty_level: Optional[str] = None,
-        offset: Optional[int] = None,
-        limit: Optional[int] = None,
+        title: str | None = None,
+        subject_id: int | None = None,
+        difficulty_level: str | None = None,
+        offset: int | None = None,
+        limit: int | None = None,
         current_user: User = Depends(get_current_user),
         quiz_service: QuizService = Depends(get_quiz_service)
 ):
@@ -58,11 +57,11 @@ async def get_quizzes(
     return await quiz_service.get_quizzes(params=params, user_id=current_user.id, role=current_user.role)
 
 
-@router.get("/subjects/{subject_id}/quizzes", response_model=List[QuizResponse], status_code=status.HTTP_200_OK)
+@router.get("/subjects/{subject_id}/quizzes", response_model=list[QuizResponse], status_code=status.HTTP_200_OK)
 async def get_quizzes_by_subject(
         subject_id: int,
-        limit: Optional[int] = 100,
-        offset: Optional[int] = 0,
+        limit: int | None = 100,
+        offset: int | None = 0,
         quiz_service: QuizService = Depends(get_quiz_service)
 ):
     params = {"limit": limit, "offset": offset}

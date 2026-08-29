@@ -1,8 +1,7 @@
-from typing import Optional
 
-from pydantic import BaseModel, Field, EmailStr, ConfigDict
+from pydantic import BaseModel, ConfigDict, EmailStr, Field
 
-from app.models.user import UserRole, Gender
+from app.models.user import Gender, UserRole
 
 
 class UserCreate(BaseModel):
@@ -22,13 +21,14 @@ class UserLogin(BaseModel):
 class UserResponse(BaseModel):
     id : int
     name: str
-    gender: Optional[Gender] = None
+    gender: Gender | None = None
     email: EmailStr
     username : str
     email : str
-    role : Optional[UserRole]
+    role : UserRole | None
     is_active : bool
 
-    """UserResponse của bạn đang kế thừa từ BaseModel của pydantic.v1. Để FastAPI có thể tự động chuyển đổi object User 
-    (SQLAlchemy) thành UserResponse trả về cho client, model này cần được cấu hình orm_mode."""
     model_config = ConfigDict(from_attributes=True)
+
+class GoogleLoginRequest(BaseModel):
+    token: str
