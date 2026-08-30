@@ -1,8 +1,9 @@
+import jwt
 from fastapi import APIRouter, Depends, HTTPException, status, Form, UploadFile, File
 from pydantic import EmailStr
-
 from app.api.dependencies import get_current_user, get_user_service
-from app.core.security import create_access_token
+from app.core.config import settings
+from app.core.security import create_access_token, create_refresh_token
 from app.models.user import User, Gender, UserRole
 from app.schemas.user import UserCreate, UserLogin, UserResponse
 from app.services.user_service import UserService
@@ -39,15 +40,32 @@ async def register_user(
     return await user_service.create_user(user_data=user_data, avatar=avatar)
 
 
+# @router.post("/login")
+# async def login(
+#         login_data: UserLogin,
+#         user_service: UserService = Depends(get_user_service)
+# ):
+#     user = await user_service.login(
+#         username=login_data.username,
+#         password=login_data.password
+#     )
+#
+#     if not user:
+#         raise HTTPException(
+#             status_code=status.HTTP_401_UNAUTHORIZED,
+#             detail="Tài khoản hoặc mật khẩu không đúng",
+#             headers={"WWW-Authenticate": "Bearer"},
+#         )
+#
+#     access_token = create_access_token(data={"sub": user.username})
+#     return {"access_token": access_token, "token_type": "bearer"}
+
 @router.post("/login")
 async def login(
         login_data: UserLogin,
         user_service: UserService = Depends(get_user_service)
 ):
-    user = await user_service.login(
-        username=login_data.username,
-        password=login_data.password
-    )
+    user = await user_service.login(username=login_data.username, password=login_data.password)
 
     if not user:
         raise HTTPException(
@@ -57,9 +75,23 @@ async def login(
         )
 
     access_token = create_access_token(data={"sub": user.username})
-    return {"access_token": access_token, "token_type": "bearer"}
+    refresh_token = create_refresh_token(data={"sub": user.username})
+
+    return {
+        "access_token": access_token,
+        "refresh_token": refresh_token,
+        "token_type": "bearer"
+    }
 
 
 @router.get("/profile", response_model=UserResponse, status_code=status.HTTP_200_OK)
 async def get_my_profile(current_user: User = Depends(get_current_user)):
     return current_user
+
+
+@router.post("/refresh")
+async def refresh_token(
+        refresh_token: str,
+        user_service: UserService = Depends(get_user_service)
+):
+    return user_service.refresh_access_token(refresh_token)
