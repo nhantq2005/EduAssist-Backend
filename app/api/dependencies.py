@@ -7,6 +7,8 @@ from app.db.session import get_db
 from app.services.chat_message_service import ChatMessageService
 from app.services.chat_session_service import ChatSessionService
 from app.services.document_service import DocumentService
+from app.services.flashcard_service import FlashcardService
+from app.services.flashcard_set_service import FlashcardSetService
 from app.services.question_service import QuestionService
 from app.services.quiz_attempt_service import QuizAttemptService
 from app.services.quiz_service import QuizService
@@ -14,6 +16,7 @@ from app.services.rag_service import RagService
 from app.services.stats_service import StatsService
 from app.services.subject_service import SubjectService
 from app.services.user_service import UserService
+
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/api/users/login")
 
 
@@ -45,15 +48,25 @@ def get_chat_session_service(db: AsyncSession = Depends(get_db)) -> ChatSessionS
 def get_stats_service(db: AsyncSession = Depends(get_db)) -> StatsService:
     return StatsService(db)
 
-def get_question_service(db: AsyncSession = Depends(get_db))-> QuestionService:
+
+def get_question_service(db: AsyncSession = Depends(get_db)) -> QuestionService:
     return QuestionService(db)
+
 
 def get_chat_message_service(db: AsyncSession = Depends(get_db)) -> ChatMessageService:
     return ChatMessageService(db)
 
+
 def get_quiz_attempt_service(db: AsyncSession = Depends(get_db)) -> QuizAttemptService:
     return QuizAttemptService(db)
 
+
+def get_flashcard_set_service(db: AsyncSession = Depends(get_db)) -> FlashcardSetService:
+    return FlashcardSetService(db)
+
+
+def get_flashcard_service(db: AsyncSession = Depends(get_db)) -> FlashcardService:
+    return FlashcardService(db)
 
 
 # LAY USER TU TOKEN
