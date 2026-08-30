@@ -1,4 +1,6 @@
 import uuid
+
+import jwt
 from fastapi import HTTPException, status, UploadFile, File
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
@@ -110,8 +112,7 @@ class UserService:
             return True
         except SQLAlchemyError:
             await self.session.rollback()
-            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                                detail="Lỗi hệ thống khi lưu mật khẩu mới.")
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Lỗi hệ thống khi lưu mật khẩu mới.")
 
     async def login_with_google(self, google_login_request: GoogleLoginRequest):
         try:
@@ -153,3 +154,25 @@ class UserService:
 
         except ValueError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token không hợp lệ")
+
+    async def refresh_access_token(self, refresh_token: str):
+
+        try:
+            payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+            username: str = payload.get("sub")
+            if username is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token không hợp lệ hoặc đã hết hạn")
+
+            user = await self.get_user_by_username(username)
+            if not user or not user.is_active:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token không hợp lệ hoặc đã hết hạn")
+
+            new_access_token = create_access_token(data={"sub": user.username})
+
+            return {
+                "access_token": new_access_token,
+                "token_type": "bearer"
+            }
+
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token không hợp lệ hoặc đã hết hạn")
