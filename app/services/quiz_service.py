@@ -1,11 +1,10 @@
 from fastapi import HTTPException
-from sqlalchemy import select, or_
+from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
-
 from app.models import Quiz
 from app.models.quiz import SourceType
+from app.rag.generate.quiz_generator import QuizData, generate_quiz_from_topic
 from app.schemas.quiz import QuizCreate, QuizGenerateRequest
-from app.rag.generate.quiz_generator import generate_quiz_from_topic, QuizData
 from app.services.question_service import QuestionService
 
 
@@ -43,7 +42,7 @@ class QuizService:
             await question_service.create_questions(quiz_data.questions)
             return quiz_data
         except Exception as e:
-            raise Exception(f"Lỗi khi sinh trắc nghiệm: {str(e)}")
+            raise Exception(f"Lỗi khi sinh trắc nghiệm: {e!s}")
 
     async def get_quizzes(self, params: dict, user_id: int, role: str) -> list[Quiz]:
         stm = select(Quiz)

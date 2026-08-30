@@ -1,7 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, Form, UploadFile, File
+from pydantic import EmailStr
+
 from app.api.dependencies import get_current_user, get_user_service
 from app.core.security import create_access_token
-from app.models.user import User
+from app.models.user import User, Gender, UserRole
 from app.schemas.user import UserCreate, UserLogin, UserResponse
 from app.services.user_service import UserService
 
@@ -10,19 +12,31 @@ router = APIRouter(prefix="/users", tags=["Users"])
 
 @router.post("/register", response_model=UserResponse, status_code=status.HTTP_201_CREATED)
 async def register_user(
-        user_in: UserCreate,
+        name: str = Form(..., min_length=1),
+        username: str = Form(..., min_length=3, max_length=50),
+        email: EmailStr = Form(...),
+        password: str = Form(..., min_length=6),
+        gender: Gender = Form(Gender.MALE),
+        role: UserRole = Form(UserRole.STUDENT),
+        avatar: UploadFile = File(None),
         user_service: UserService = Depends(get_user_service)
 ):
-    username = user_in.username.strip().lower()
-    email = str(user_in.email).strip().lower()
+    username = username.strip().lower()
+    email = str(email).strip().lower()
     existing_user = (await user_service.get_user_by_username_or_email(username, email))
     if existing_user:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="username hoặc email đã tồn tại")
-    user_data = user_in.model_dump()
-    user_data["username"] = username
-    user_data["email"] = email
 
-    return await user_service.create_user(user_data=user_data)
+    user_data = {
+        "name": name,
+        "username": username,
+        "email": email,
+        "password": password,
+        "gender": gender,
+        "role": role,
+    }
+
+    return await user_service.create_user(user_data=user_data, avatar=avatar)
 
 
 @router.post("/login")

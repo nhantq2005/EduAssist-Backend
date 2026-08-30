@@ -1,5 +1,7 @@
 import uuid
-from fastapi import HTTPException, status
+
+import jwt
+from fastapi import HTTPException, status, UploadFile, File
 from google.oauth2 import id_token
 from google.auth.transport import requests as google_requests
 from sqlalchemy import or_, select
@@ -9,6 +11,7 @@ from app.core.config import settings
 from app.core.security import get_password_hash, verify_password, create_access_token
 from app.models.user import User
 from app.schemas.user import GoogleLoginRequest
+from app.utils.cloudinary_utils import upload_file_to_cloudinary
 
 
 class UserService:
@@ -20,11 +23,17 @@ class UserService:
         result = await self.session.execute(stm)
         return result.scalar_one_or_none()
 
-    async def create_user(self, user_data: dict):
+    async def create_user(self, user_data: dict, avatar: UploadFile):
         try:
             hashed_password = get_password_hash(
                 user_data["password"]
             )
+
+            avatar_url = None
+
+            if avatar:
+                upload_result = await upload_file_to_cloudinary(avatar, folder="avatars")
+                avatar_url = upload_result.get("secure_url")
 
             new_user = User(
                 name=user_data["name"],
@@ -33,6 +42,7 @@ class UserService:
                 email=str(user_data["email"]).strip().lower(),
                 password=hashed_password,
                 role=user_data.get("role", "STUDENT"),
+                avatar_url=avatar_url
             )
 
             self.session.add(new_user)
@@ -128,14 +138,14 @@ class UserService:
                 hashed_password = get_password_hash(random_password)
                 username = email.split("@")[0]
 
-                user_data = User(
-                    name=name,
-                    gender="MALE",
-                    username=username,
-                    email=email,
-                    password=hashed_password,
-                    role="STUDENT"
-                )
+                user_data = {
+                    "name": name,
+                    "gender": "MALE",
+                    "username": username,
+                    "email": email,
+                    "password": hashed_password,
+                    "role": "STUDENT"
+                }
 
                 user = await self.create_user(user_data=user_data)
 
@@ -144,3 +154,25 @@ class UserService:
 
         except ValueError:
             raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Token không hợp lệ")
+
+    async def refresh_access_token(self, refresh_token: str):
+
+        try:
+            payload = jwt.decode(refresh_token, settings.SECRET_KEY, algorithms=[settings.ALGORITHM])
+            username: str = payload.get("sub")
+            if username is None:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token không hợp lệ hoặc đã hết hạn")
+
+            user = await self.get_user_by_username(username)
+            if not user or not user.is_active:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token không hợp lệ hoặc đã hết hạn")
+
+            new_access_token = create_access_token(data={"sub": user.username})
+
+            return {
+                "access_token": new_access_token,
+                "token_type": "bearer"
+            }
+
+        except jwt.PyJWTError:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Refresh token không hợp lệ hoặc đã hết hạn")

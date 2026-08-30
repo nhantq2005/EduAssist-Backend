@@ -1,10 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
-from typing import List, Optional
-from app.models.question import Question
-from app.models.option import Option
-from app.schemas.question import QuestionRequest
+from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
+from app.models.option import Option
+from app.models.question import Question
+from app.schemas.question import QuestionRequest
 
 
 class QuestionService:
@@ -40,7 +39,7 @@ class QuestionService:
         )
         return result.scalars().first()
 
-    async def create_questions(self, list_questions_request: List[QuestionRequest]):
+    async def create_questions(self, list_questions_request: list[QuestionRequest]):
         questions = []
         for question_request in list_questions_request:
             question_data = question_request.model_dump(exclude={"options"})
@@ -75,7 +74,7 @@ class QuestionService:
         result = await self.session.execute(stm)
         return list(result.scalars().all())
 
-    async def update_question(self, question_id: int, question_request: QuestionRequest) -> Optional[Question]:
+    async def update_question(self, question_id: int, question_request: QuestionRequest) -> Question | None:
         db_question = await self.get_question_by_id(question_id)
         if db_question:
             update_data = question_request.model_dump(exclude_unset=True)

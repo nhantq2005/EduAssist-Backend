@@ -1,10 +1,8 @@
+from fastapi import HTTPException, status
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
-from datetime import datetime
 from sqlalchemy.orm import selectinload
 from app.models import ChatSession
-from fastapi import HTTPException, status
-
 from app.schemas.chat_session import ChatSessionRequest
 
 
@@ -37,7 +35,7 @@ class ChatSessionService:
             await self.session.rollback()
             raise HTTPException(
                 status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Lỗi khi xóa đoạn chat: {str(e)}"
+                detail=f"Lỗi khi xóa đoạn chat: {e!s}"
             )
 
     async def get_chat_session_by_user_id(self, user_id: int, params: dict):
