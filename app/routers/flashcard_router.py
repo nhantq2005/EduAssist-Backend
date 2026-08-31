@@ -13,10 +13,11 @@ router = APIRouter(tags=['Flashcard'])
 
 @router.get('/flashcard-sets/{flashcard_set_id}/flashcards', response_model=List[FlashcardResponse],
             status_code=status.HTTP_200_OK)
+@require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def get_flashcards(
         flashcard_set_id: int,
         current_user: User = Depends(get_current_user),
-        service: FlashcardService = Depends(get_flashcard_service())
+        service: FlashcardService = Depends(get_flashcard_service)
 ):
     return await service.get_flashcards(flashcard_set_id=flashcard_set_id)
 
@@ -27,7 +28,7 @@ async def get_flashcard_sets(
         limit: int | None = None,
         offset: int | None = None,
         current_user: User = Depends(get_current_user),
-        service: FlashcardSetService = Depends(get_flashcard_set_service())
+        service: FlashcardSetService = Depends(get_flashcard_set_service)
 ):
     params = {"limit": limit, "offset": offset}
     return await service.get_flashcard_set(user_id=current_user.id, params=params)
@@ -39,7 +40,7 @@ async def generate_flashcard_set(
         document_id: int,
         title: str,
         current_user: User = Depends(get_current_user),
-        service: FlashcardSetService = Depends(get_flashcard_set_service())
+        service: FlashcardSetService = Depends(get_flashcard_set_service)
 ):
     return await service.generate_flashcard_set(document_id=document_id, user_id=current_user.id, title=title)
 
@@ -50,7 +51,7 @@ async def update_flashcard_set(
         flashcard_set_id: int,
         flashcard_set_request: FlashcardSetRequest,
         current_user: User = Depends(get_current_user),
-        service: FlashcardSetService = Depends(get_flashcard_set_service())
+        service: FlashcardSetService = Depends(get_flashcard_set_service)
 ):
     return await service.update_flashcard_set(flashcard_set_id=flashcard_set_id,
                                         flashcard_set_request=flashcard_set_request,
@@ -61,6 +62,6 @@ async def update_flashcard_set(
 async def delete_flashcard_set(
         flashcard_set_id: int,
         current_user: User = Depends(get_current_user),
-        service: FlashcardSetService = Depends(get_flashcard_set_service())
+        service: FlashcardSetService = Depends(get_flashcard_set_service)
 ):
     return await service.delete_flashcard_set(flashcard_set_id=flashcard_set_id, user_id=current_user.id)
