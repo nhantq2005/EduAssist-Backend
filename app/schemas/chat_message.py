@@ -1,4 +1,3 @@
-
 from pydantic import BaseModel, ConfigDict
 
 
@@ -10,10 +9,6 @@ class ChatMessageCreate(BaseModel):
 class ChatMessageRequest(BaseModel):
     question: str
     chat_session_id: int
-
-class ChatMessageUpdate(BaseModel):
-    question: str | None = None
-    answer: str | None = None
 
 class ChatMessageResponse(BaseModel):
     id: int
