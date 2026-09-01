@@ -1,9 +1,6 @@
 from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict
-
 from app.models.quiz import DifficultyLevel, SourceType
-
 from .question import QuestionRequest
 
 

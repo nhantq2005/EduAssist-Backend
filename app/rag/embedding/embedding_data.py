@@ -1,11 +1,10 @@
 from pathlib import Path
-from typing import List
-from langchain_core.documents import Document
 from langchain_community.vectorstores import Chroma
+from langchain_core.documents import Document
 from app.rag.model import rag_models_instance
 
 
-def embed_and_save_to_chroma(documents: List[Document], collection_name: str = "data-collection"):
+def embed_and_save_to_chroma(documents: list[Document], collection_name: str = "data-collection"):
     CURRENT_FILE = Path(__file__).resolve()
     ROOT_DIR = CURRENT_FILE.parents[3] if len(CURRENT_FILE.parents) > 3 else CURRENT_FILE.parent
     chroma_db_dir = ROOT_DIR / "chroma_db"

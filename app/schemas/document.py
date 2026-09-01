@@ -20,15 +20,12 @@ class DocumentUpdateRequest(BaseModel):
 class DocumentResponse(BaseModel):
     id: int
     title: str
-
     file_url: str | None
     file_type: str | None
     file_name: str | None
-
     lecturer_id: int
     subject_id: int
     process_status: ProcessingStatus
-
     created_date: datetime
     updated_date: datetime
 

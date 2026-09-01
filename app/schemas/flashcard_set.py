@@ -12,3 +12,7 @@ class FlashcardSetResponse(BaseModel):
 
 class FlashcardSetRequest(BaseModel):
     title:str
+
+class GenerateFlashcardSetRequest(BaseModel):
+    document_id: int
+    title: str

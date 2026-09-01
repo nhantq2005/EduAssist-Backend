@@ -33,3 +33,6 @@ class UserResponse(BaseModel):
 
 class GoogleLoginRequest(BaseModel):
     token: str
+
+class RefreshTokenRequest(BaseModel):
+    refresh_token: str

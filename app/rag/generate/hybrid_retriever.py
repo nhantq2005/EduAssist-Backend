@@ -1,7 +1,5 @@
 from pathlib import Path
-from langchain_community.vectorstores import Chroma
-from langchain_classic.retrievers import EnsembleRetriever
-from langchain_classic.retrievers import ContextualCompressionRetriever
+from langchain_classic.retrievers import ContextualCompressionRetriever, EnsembleRetriever
 from langchain_classic.retrievers.document_compressors import CrossEncoderReranker
 from app.rag.model import rag_models_instance
 
@@ -15,29 +13,17 @@ def get_hybrid_reranked_retriever(top_k: int = 3):
     vectorstore = rag_models_instance.vectorstore
 
     print("Công thức tính độ tương đồng của Chroma:", vectorstore._collection.metadata)
-    # LAY KET QUA (LAY GAP 2)
+    # TRUY XUAT TU CHROMA
     chroma_retriever = vectorstore.as_retriever(search_kwargs={"k": top_k * 2})
 
     # LAY BM25 TỪ SINGLETON
     bm25_retriever = rag_models_instance.bm25_retriever
     bm25_retriever.k = top_k * 2
+    base_retriever = EnsembleRetriever(retrievers=[bm25_retriever, chroma_retriever], weights=[0.5, 0.5])
 
-    # ENSEMBLE RETRIEVER (50/50)
-    ensemble_retriever = EnsembleRetriever(
-        retrievers=[bm25_retriever, chroma_retriever],
-        weights=[0.5, 0.5]
-    )
-
-    # LAY RE-RANKER TỪ SINGLETON
+    # XEP HANG NGU CANH
     cross_encoder = rag_models_instance.cross_encoder
-
-    # Cấu hình bộ nén: Chấm điểm và chỉ giữ lại số lượng tài liệu đúng bằng top_k
     compressor = CrossEncoderReranker(model=cross_encoder, top_n=top_k)
-
-    # Bọc bộ tìm kiếm tổng hợp qua lớp Nén (Compression)
-    compression_retriever = ContextualCompressionRetriever(
-        base_compressor=compressor,
-        base_retriever=ensemble_retriever
-    )
+    compression_retriever = ContextualCompressionRetriever(base_compressor=compressor,base_retriever=base_retriever)
 
     return compression_retriever

@@ -1,12 +1,10 @@
-import json
 import re
-from pathlib import Path
-from typing import List, Dict, Any
+from typing import Any
 from langchain_core.documents import Document
 from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 
-def group_blocks_from_memory(records: List[Dict[str, Any]]) -> Dict[str, Any]:
+def group_blocks_from_memory(records: list[dict[str, Any]]) -> dict[str, Any]:
     grouped_sections = {}
 
     for block in records:
@@ -40,7 +38,7 @@ def group_blocks_from_memory(records: List[Dict[str, Any]]) -> Dict[str, Any]:
     return grouped_sections
 
 
-def create_langchain_documents(grouped_sections: Dict[str, Any]) -> List[Document]:
+def create_langchain_documents(grouped_sections: dict[str, Any]) -> list[Document]:
     text_splitter = RecursiveCharacterTextSplitter(
         # chunk_size=800,
         # chunk_overlap=100,

@@ -1,6 +1,4 @@
-
 from pydantic import BaseModel, ConfigDict
-
 from app.schemas.option import OptionResponse
 from app.schemas.question import QuestionResponse
 

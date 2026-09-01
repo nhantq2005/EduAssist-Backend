@@ -116,5 +116,5 @@ async def delete_question(
 
     success = await service.delete_question(question_id=question_id)
     if not success:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUNDt, detail="Không tìm thấy câu hỏi")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy câu hỏi")
     return {"message": "Xóa câu hỏi thành công"}

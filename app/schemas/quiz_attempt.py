@@ -16,13 +16,13 @@ class QuizAttemptCreate(BaseModel):
     user_id: int
     quiz_id: int
 
-class QuizAttemptUpdate(BaseModel):
-    total_score: float | None = None
-    is_completed: bool | None = None
-    total_questions: int | None = None
-    correct_count: int | None = None
-    time_start: datetime | None = None
-    time_submitted: datetime | None = None
+# class QuizAttemptUpdate(BaseModel):
+#     total_score: float | None = None
+#     is_completed: bool | None = None
+#     total_questions: int | None = None
+#     correct_count: int | None = None
+#     time_start: datetime | None = None
+#     time_submitted: datetime | None = None
 
 class QuizAttemptResponse(BaseModel):
     id: int
