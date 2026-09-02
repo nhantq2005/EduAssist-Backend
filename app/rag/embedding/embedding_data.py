@@ -19,11 +19,12 @@ def embed_and_save_to_chroma(documents: list[Document], collection_name: str = "
     print(f"Đang thêm {len(documents)} chunks mới vào ChromaDB")
 
     # KHOI TAO CHROMADB
-    vectorstore = Chroma(
-        persist_directory=str(chroma_db_dir),
-        embedding_function=embeddings,
-        collection_name=collection_name
-    )
+    # vectorstore = Chroma(
+    #     persist_directory=str(chroma_db_dir),
+    #     embedding_function=embeddings,
+    #     collection_name=collection_name
+    # )
+    vectorstore = rag_models_instance.vectorstore
     vectorstore.add_documents(documents)
 
     print(f"Lưu thành công vào ChromaDB tại: {chroma_db_dir}")
