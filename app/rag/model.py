@@ -11,7 +11,8 @@ class RAGModels:
         if cls._instance is None:
             cls._instance = super().__new__(cls)
 
-            device_embedding = "cpu"
+            # device_embedding = "cuda" if torch.cuda.is_available() else "cpu"
+            device_embedding =  "cpu"
             cls._instance.embeddings = HuggingFaceEmbeddings(
                 model_name="BAAI/bge-m3",
                 model_kwargs={
@@ -26,7 +27,7 @@ class RAGModels:
                 model_name="BAAI/bge-reranker-v2-m3",
                 model_kwargs={
                     'device': device_reranker,
-                    'automodel_args': {'torch_dtype': torch.float16} if device_reranker == "cuda" else {}
+                    'model_kwargs': {'torch_dtype': torch.float16} if device_reranker == "cuda" else {}
                 }
             )
 
