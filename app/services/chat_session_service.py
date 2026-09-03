@@ -11,32 +11,31 @@ class ChatSessionService:
         self.session = session
 
     async def create_chat_session(self, chat_session_request: ChatSessionRequest, user_id: int):
-        session = ChatSession(
-            **chat_session_request.model_dump(),
-            user_id=user_id
-        )
-        self.session.add(session)
-        await self.session.commit()
-        await self.session.refresh(session)
-        return session
+        try:
+            session = ChatSession(
+                **chat_session_request.model_dump(),
+                user_id=user_id
+            )
+            self.session.add(session)
+            await self.session.commit()
+            await self.session.refresh(session)
+            return session
+        except Exception as e:
+            await self.session.rollback()
+            raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f"Dữ liệu không hợp lệ")
+
 
     async def delete_chat_session(self, session_id: int):
         chat_session = await self.session.get(ChatSession, session_id)
         if not chat_session:
-            raise HTTPException(
-                status_code=status.HTTP_404_NOT_FOUND,
-                detail=f"Không tìm thấy đoạn chat với id: {session_id}"
-            )
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Không tìm thấy đoạn chat id: {session_id}")
         try:
             await self.session.delete(chat_session)
             await self.session.commit()
             return True
-        except Exception as e:
+        except Exception:
             await self.session.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Lỗi khi xóa đoạn chat: {e!s}"
-            )
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Lỗi khi xóa đoạn chat")
 
     async def get_chat_session_by_user_id(self, user_id: int, params: dict):
         limit = params.get("limit", 100)

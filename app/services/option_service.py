@@ -13,9 +13,9 @@ class OptionService:
             await self.session.commit()
             await self.session.refresh(option)
             return option
-        except Exception as e:
+        except Exception:
             await self.session.rollback()
-            raise e
+            raise
 
     async def update_option(self, option_id: int, option_request: OptionRequest) -> Option:
         try:
@@ -30,9 +30,9 @@ class OptionService:
             await self.session.commit()
             await self.session.refresh(option)
             return option
-        except Exception as e:
+        except Exception:
             await self.session.rollback()
-            raise e
+            raise
 
     async def delete_option(self, option_id: int) -> Option:
         try:
@@ -42,6 +42,6 @@ class OptionService:
             await self.session.delete(option)
             await self.session.commit()
             return option
-        except Exception as e:
+        except Exception:
             await self.session.rollback()
-            raise e
+            raise
