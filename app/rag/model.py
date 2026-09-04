@@ -2,6 +2,9 @@ import pickle
 import torch
 from langchain_community.cross_encoders import HuggingFaceCrossEncoder
 from langchain_huggingface import HuggingFaceEmbeddings
+import os
+from app.core.config import settings
+from langchain_community.vectorstores import Chroma
 
 
 class RAGModels:
@@ -31,20 +34,15 @@ class RAGModels:
                 }
             )
 
-            import os
-            from pathlib import Path
-            CURRENT_FILE = Path(__file__).resolve()
-            ROOT_DIR = CURRENT_FILE.parents[2]
-            bm25_save_path = ROOT_DIR / "bm25_index.pkl"
+            bm25_save_path = settings.BM25_SAVE_PATH
             if os.path.exists(bm25_save_path):
                 with open(bm25_save_path, 'rb') as f:
                     cls._instance.bm25_retriever = pickle.load(f)
             else:
-                print(f"Không tìm thấy file {bm25_save_path}. Hãy chạy script build dữ liệu trước.")
+                print(f"Không tìm thấy file {bm25_save_path}.")
                 cls._instance.bm25_retriever = None
 
-            from langchain_community.vectorstores import Chroma
-            chroma_db_dir = ROOT_DIR / "chroma_db"
+            chroma_db_dir = settings.CHROMA_DB_DIR
             cls._instance.vectorstore = Chroma(
                 persist_directory=str(chroma_db_dir),
                 embedding_function=cls._instance.embeddings,
@@ -52,7 +50,6 @@ class RAGModels:
             )
 
         print("Tải mô hình thành công")
-
         return cls._instance
 
 
