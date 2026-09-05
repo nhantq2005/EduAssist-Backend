@@ -7,6 +7,7 @@ from langchain_text_splitters import RecursiveCharacterTextSplitter
 def group_blocks_from_memory(records: list[dict[str, Any]]) -> dict[str, Any]:
     grouped_sections = {}
 
+
     for block in records:
         if block['block_type'] == 'heading':
             continue
@@ -39,6 +40,7 @@ def group_blocks_from_memory(records: list[dict[str, Any]]) -> dict[str, Any]:
 
 
 def create_langchain_documents(grouped_sections: dict[str, Any]) -> list[Document]:
+    chunk_count = 1
     text_splitter = RecursiveCharacterTextSplitter(
         # chunk_size=800,
         # chunk_overlap=100,
@@ -54,6 +56,10 @@ def create_langchain_documents(grouped_sections: dict[str, Any]) -> list[Documen
 
         doc = Document(page_content=data["text"].strip(), metadata=data["metadata"])
         splits = text_splitter.split_documents([doc])
+        for split in splits:
+            source_name = split.metadata.get("source", "doc")
+            split.metadata["chunk_id"] = f"{source_name}_chunk_{chunk_count}"
+            chunk_count += 1
         documents.extend(splits)
 
     return documents

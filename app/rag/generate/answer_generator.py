@@ -35,7 +35,7 @@ def format_docs(docs):
 
 
 def get_rag_chain():
-    retriever = get_hybrid_reranked_retriever(top_k=5)
+    retriever = get_hybrid_reranked_retriever(top_k=3)
     llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0.2, thinking_level='low')
     template = """
 Bạn là một Trợ giảng AI chuyên ngành Công nghệ thông tin. 

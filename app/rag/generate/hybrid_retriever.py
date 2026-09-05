@@ -5,12 +5,12 @@ from app.rag.model import rag_models_instance
 def get_hybrid_reranked_retriever(top_k: int = 3):
     vectorstore = rag_models_instance.vectorstore
     print("Công thức tính độ tương đồng của Chroma:", vectorstore._collection.metadata)
-    chroma_retriever = vectorstore.as_retriever(search_kwargs={"k": top_k * 2})
+    chroma_retriever = vectorstore.as_retriever(search_kwargs={"k": top_k * 3})
 
     bm25_retriever = rag_models_instance.bm25_retriever
     if bm25_retriever is not None:
-        bm25_retriever.k = top_k * 3
-        base_retriever = EnsembleRetriever(retrievers=[bm25_retriever, chroma_retriever], weights=[0.5, 0.5])
+        bm25_retriever.k = top_k * 5
+        base_retriever = EnsembleRetriever(retrievers=[bm25_retriever, chroma_retriever], weights=[0.3, 0.7])
     else:
         base_retriever = chroma_retriever
 

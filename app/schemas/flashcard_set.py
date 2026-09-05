@@ -2,6 +2,7 @@ from datetime import datetime
 from pydantic import BaseModel, ConfigDict
 from app.schemas.document import DocumentResponse
 
+
 class FlashcardSetResponse(BaseModel):
     id: int
     title: str

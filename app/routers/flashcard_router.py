@@ -1,17 +1,26 @@
-from typing import List
+
 from fastapi import APIRouter, Depends, status
-from app.api.dependencies import get_flashcard_service, get_current_user, get_flashcard_set_service
+
+from app.api.dependencies import (
+    get_current_user,
+    get_flashcard_service,
+    get_flashcard_set_service,
+)
 from app.core.permissions import require_role
 from app.models import User
 from app.schemas.flashcard import FlashcardResponse
-from app.schemas.flashcard_set import FlashcardSetResponse, FlashcardSetRequest, GenerateFlashcardSetRequest
+from app.schemas.flashcard_set import (
+    FlashcardSetRequest,
+    FlashcardSetResponse,
+    GenerateFlashcardSetRequest,
+)
 from app.services.flashcard_service import FlashcardService
 from app.services.flashcard_set_service import FlashcardSetService
 
 router = APIRouter(tags=['Flashcard'])
 
 
-@router.get('/flashcard-sets/{flashcard_set_id}/flashcards', response_model=List[FlashcardResponse],
+@router.get('/flashcard-sets/{flashcard_set_id}/flashcards', response_model=list[FlashcardResponse],
             status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def get_flashcards(
@@ -22,7 +31,7 @@ async def get_flashcards(
     return await service.get_flashcards(flashcard_set_id=flashcard_set_id)
 
 
-@router.get('/flashcard-sets', response_model=List[FlashcardSetResponse], status_code=status.HTTP_200_OK)
+@router.get('/flashcard-sets', response_model=list[FlashcardSetResponse], status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def get_flashcard_sets(
         limit: int | None = None,

@@ -1,4 +1,5 @@
 import os
+from pathlib import Path
 import cloudinary
 from dotenv import load_dotenv
 from pydantic_settings import BaseSettings, SettingsConfigDict
@@ -10,6 +11,10 @@ class Settings(BaseSettings):
 
     DATABASE_URL: str
     ALEMBIC_DATABASE_URL: str
+
+    ROOT_DIR: Path = Path(__file__).resolve().parent.parent.parent
+    BM25_SAVE_PATH: Path = ROOT_DIR / "bm25_index.pkl"
+    CHROMA_DB_DIR: Path = ROOT_DIR / "chroma_db"
 
     SECRET_KEY: str
     ALGORITHM: str = "HS256"

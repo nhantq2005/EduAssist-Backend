@@ -1,6 +1,5 @@
 
 from pydantic import BaseModel, ConfigDict, EmailStr, Field
-
 from app.models.user import Gender, UserRole
 
 
@@ -24,7 +23,6 @@ class UserResponse(BaseModel):
     gender: Gender | None = None
     email: EmailStr
     username : str
-    email : str
     role : UserRole | None
     is_active : bool
     avatar_url: str | None = None

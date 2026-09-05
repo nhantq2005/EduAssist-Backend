@@ -1,5 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-from app.api.dependencies import get_current_user, get_question_service, get_quiz_service
+
+from app.api.dependencies import (
+    get_current_user,
+    get_question_service,
+    get_quiz_service,
+)
 from app.core.permissions import require_role
 from app.models import User
 from app.rag.generate.quiz_generator import QuizData
