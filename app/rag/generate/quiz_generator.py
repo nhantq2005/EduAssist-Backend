@@ -9,11 +9,8 @@ from app.schemas.quiz import QuizData
 load_dotenv()
 
 
-
-
 async def generate_quiz_from_topic(topic: str, num_questions: int = 5) -> QuizData:
     llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0.3)
-    # TIM DOC CO CHU DE LIEN QUAN
     retriever = get_hybrid_reranked_retriever(top_k=5)
     docs = await asyncio.to_thread(retriever.invoke, topic)
     context = format_docs(docs)
