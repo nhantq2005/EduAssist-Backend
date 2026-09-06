@@ -8,6 +8,7 @@ class FlashcardSetResponse(BaseModel):
     title: str
     created_date: datetime
     document: DocumentResponse
+    user_id: int
     
     model_config = ConfigDict(from_attributes=True)
 
