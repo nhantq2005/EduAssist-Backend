@@ -19,15 +19,12 @@ async def generate_from_chromadb(db: AsyncSession, document_id: int, user_id: in
         raise ValueError("Document không tồn tại hoặc không có tên file")
 
     vectorstore = rag_models_instance.vectorstore
-
-    # 3. Lọc ra các chunks thuộc về file này (dựa vào metadata)
     chroma_results = await asyncio.to_thread(vectorstore.get, where={"source": doc.file_name})
     chunks = chroma_results.get("documents") or []
 
     if not chunks:
         raise ValueError("Không tìm thấy dữ liệu text của tài liệu này trong ChromaDB.")
 
-    # 4. Gom nhóm chunk
     merged_texts = []
     current_text = ""
     for chunk_text in chunks:
@@ -40,8 +37,6 @@ async def generate_from_chromadb(db: AsyncSession, document_id: int, user_id: in
 
     llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0.3)
     structured_llm = llm.with_structured_output(FlashcardList)
-    
-    # Dùng Semaphore để tránh lỗi Rate Limit khi gọi API Gemini quá nhanh
     sem = asyncio.Semaphore(5)
 
     async def process_block(text_block):

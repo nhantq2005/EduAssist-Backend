@@ -15,7 +15,7 @@ from app.rag.processing_pipeline import process_document_pipeline
 from app.schemas.document import DocumentRequest, DocumentUpdateRequest
 from app.utils.cloudinary_utils import upload_file_to_cloudinary
 
-ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".ppt", ".pptx"}
+ALLOWED_EXTENSIONS = {".pdf"}
 
 logger = logging.getLogger(__name__)
 

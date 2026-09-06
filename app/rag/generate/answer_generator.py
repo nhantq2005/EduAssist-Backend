@@ -68,7 +68,6 @@ CÂU TRẢ LỜI CỦA TRỢ GIẢNG:
 
 async def stream_answer(query: str, chat_session_id: int, db: AsyncSession):
     rag_chain, retriever = get_rag_chain()
-
     chat_message_svc = chat_message_service.ChatMessageService(db)
     history_messages, docs = await asyncio.gather(
         chat_message_svc.get_message_in_session(chat_session_id),

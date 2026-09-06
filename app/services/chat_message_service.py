@@ -1,6 +1,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.models import ChatMessage
 from app.schemas.chat_message import ChatMessageCreate
+from sqlalchemy import select
 
 
 class ChatMessageService:
@@ -17,7 +18,6 @@ class ChatMessageService:
             await self.session.rollback()
 
     async def get_message_in_session(self, session_id: int):
-        from sqlalchemy import select
         stm = select(ChatMessage).where(ChatMessage.chat_session_id == session_id).order_by(ChatMessage.id)
         result = await self.session.execute(stm)
         return result.scalars().all()

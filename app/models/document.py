@@ -24,7 +24,7 @@ class Document(Base):
     file_url: Mapped[str] = mapped_column(String, nullable=True)
     file_type: Mapped[str] = mapped_column(String, nullable=True)
     file_name: Mapped[str] = mapped_column(String(255), nullable=True)
-    lecturer_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    lecturer_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
     subject_id: Mapped[int] = mapped_column(ForeignKey("subjects.id"), nullable=False)
 
     lecturer: Mapped["User"] = relationship(back_populates="documents")

@@ -1,5 +1,4 @@
 from fastapi import APIRouter, Depends, HTTPException, status
-
 from app.api.dependencies import get_current_user, get_quiz_attempt_service
 from app.core.permissions import require_role
 from app.models import User

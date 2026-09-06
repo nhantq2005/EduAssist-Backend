@@ -111,12 +111,7 @@ class QuestionAdmin(ModelView, model=Question):
 
 def setup_admin(app: FastAPI):
     authentication_backend = AdminAuth(secret_key="super-secret-admin-key")
-    admin = Admin(
-        app,
-        engine,
-        title="EduAssist",
-        authentication_backend=authentication_backend
-    )
+    admin = Admin(app, engine, title="EduAssist", authentication_backend=authentication_backend)
     admin.add_view(UserAdmin)
     admin.add_view(SubjectAdmin)
     admin.add_view(DocumentAdmin)

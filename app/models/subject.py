@@ -14,7 +14,7 @@ class Subject(Base):
     description: Mapped[str] = mapped_column(String, nullable=False)
     created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
-    lecturer_id: Mapped[int] = mapped_column(ForeignKey("users.id"), nullable=False)
+    lecturer_id: Mapped[int | None] = mapped_column(ForeignKey("users.id", ondelete="SET NULL"), nullable=True)
 
     lecturer: Mapped["User"] = relationship(back_populates="subjects")
 

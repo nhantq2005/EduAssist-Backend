@@ -116,11 +116,8 @@ class QuizAttemptService:
             self.session.add(user_answer)
 
         score = (correct_count / total_questions * 10) if total_questions > 0 else 0.0
-
         quiz_attempt.correct_count = correct_count
         quiz_attempt.total_score = score
-
         await self.session.commit()
         await self.session.refresh(quiz_attempt)
-
         return quiz_attempt

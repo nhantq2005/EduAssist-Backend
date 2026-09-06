@@ -1,6 +1,5 @@
 from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from pydantic import EmailStr
-
 from app.api.dependencies import get_current_user, get_user_service
 from app.core.security import create_access_token, create_refresh_token
 from app.models.user import Gender, User, UserRole

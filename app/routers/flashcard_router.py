@@ -1,19 +1,9 @@
-
 from fastapi import APIRouter, Depends, status
-
-from app.api.dependencies import (
-    get_current_user,
-    get_flashcard_service,
-    get_flashcard_set_service,
-)
+from app.api.dependencies import get_current_user, get_flashcard_service, get_flashcard_set_service
 from app.core.permissions import require_role
 from app.models import User
 from app.schemas.flashcard import FlashcardResponse
-from app.schemas.flashcard_set import (
-    FlashcardSetRequest,
-    FlashcardSetResponse,
-    GenerateFlashcardSetRequest,
-)
+from app.schemas.flashcard_set import FlashcardSetRequest, FlashcardSetResponse, GenerateFlashcardSetRequest
 from app.services.flashcard_service import FlashcardService
 from app.services.flashcard_set_service import FlashcardSetService
 

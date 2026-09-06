@@ -1,6 +1,4 @@
-
 from fastapi import APIRouter, Depends, status
-
 from app.api.dependencies import get_chat_session_service, get_current_user
 from app.core.permissions import require_role
 from app.models.user import User

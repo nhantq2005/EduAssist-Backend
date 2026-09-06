@@ -1,14 +1,7 @@
-
 from fastapi import APIRouter, Depends, status
-
 from app.api.dependencies import get_stats_service
 from app.core.permissions import require_role
-from app.schemas.stats import (
-    DocumentCountBySubjectResponse,
-    ProgressChartItem,
-    QuizHistoryResponse,
-    ScoreDistributionResponse,
-)
+from app.schemas.stats import DocumentCountBySubjectResponse, ProgressChartItem, QuizHistoryResponse, ScoreDistributionResponse
 from app.services.stats_service import StatsService
 
 router = APIRouter(prefix="/stats", tags=["Stats"])
