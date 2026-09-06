@@ -7,6 +7,7 @@ from app.models.document import Document
 from app.rag.model import rag_models_instance
 from langchain_google_genai import ChatGoogleGenerativeAI
 import asyncio
+import random
 
 from app.schemas.flashcard import FlashcardList
 
@@ -54,7 +55,9 @@ async def generate_from_chromadb(db: AsyncSession, document_id: int, user_id: in
                 print(f"Lỗi gọi LLM ở đoạn text này, bỏ qua: {e}")
                 return None
 
-    tasks = [process_block(block) for block in merged_texts]
+    sampled_texts = random.sample(merged_texts, min(10, len(merged_texts)))
+
+    tasks = [process_block(block) for block in sampled_texts]
     results = await asyncio.gather(*tasks)
 
     all_extracted_cards = []
