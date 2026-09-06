@@ -52,4 +52,4 @@ async def generate_quiz_from_topic(topic: str, num_questions: int = 5) -> QuizDa
         return quiz_data
     except Exception as e:
         print(f"Lỗi khi sinh trắc nghiệm: {e}")
-        raise e
+        raise ValueError(f"Lỗi kết nối với Gemini khi tạo quiz: {str(e)}")

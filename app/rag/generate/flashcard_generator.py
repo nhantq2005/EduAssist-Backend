@@ -66,7 +66,7 @@ async def generate_from_chromadb(db: AsyncSession, document_id: int, user_id: in
             all_extracted_cards.extend(cards_result.flashcards)
             
     if not all_extracted_cards:
-        raise ValueError("Không thể tạo được flashcard nào từ tài liệu này.")
+        raise ValueError("Không thể tạo được flashcard nào từ tài liệu này (có thể do lỗi kết nối với Gemini).")
 
     new_set = FlashcardSet(title=title, document_id=document_id, user_id=user_id)
     db.add(new_set)

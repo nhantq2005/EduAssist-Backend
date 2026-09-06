@@ -76,13 +76,18 @@ async def stream_answer(query: str, chat_session_id: int, db: AsyncSession):
     chat_history_text = format_chat_history(history_messages)
     context_text = format_docs(docs)
     full_answer = ""
-    async for chunk in rag_chain.astream({
-        "chat_history": chat_history_text,
-        "context": context_text,
-        "question": query
-    }):
-        full_answer += chunk
-        yield chunk
+    try:
+        async for chunk in rag_chain.astream({
+            "chat_history": chat_history_text,
+            "context": context_text,
+            "question": query
+        }):
+            full_answer += chunk
+            yield chunk
+    except Exception as e:
+        error_msg = f"Lỗi kết nối với Gemini: {str(e)}"
+        yield error_msg
+        full_answer += error_msg
 
     chat_session = await db.get(ChatSession, chat_session_id)
     if chat_session and chat_session.title == "Đoạn chat mới":
