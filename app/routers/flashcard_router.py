@@ -6,6 +6,7 @@ from app.schemas.flashcard import FlashcardResponse
 from app.schemas.flashcard_set import FlashcardSetRequest, FlashcardSetResponse, GenerateFlashcardSetRequest
 from app.services.flashcard_service import FlashcardService
 from app.services.flashcard_set_service import FlashcardSetService
+from fastapi import HTTPException
 
 router = APIRouter(tags=['Flashcard'])
 
@@ -40,9 +41,12 @@ async def generate_flashcard_set(
         current_user: User = Depends(get_current_user),
         service: FlashcardSetService = Depends(get_flashcard_set_service)
 ):
-    return await service.generate_flashcard_set(document_id=generate_flashcard_set_request.document_id,
-                                                user_id=current_user.id,
-                                                title=generate_flashcard_set_request.title)
+    try:
+        return await service.generate_flashcard_set(document_id=generate_flashcard_set_request.document_id,
+                                                    user_id=current_user.id,
+                                                    title=generate_flashcard_set_request.title)
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 
 
 @router.put('/flashcard-sets/{flashcard_set_id}', response_model=FlashcardSetResponse, status_code=status.HTTP_200_OK)
