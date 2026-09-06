@@ -17,10 +17,8 @@ class SubjectService:
 
     async def get_subjects(self, params: dict):
         stm = (select(Subject).options(selectinload(Subject.lecturer)))
-
         if params.get("name") is not None:
             stm = stm.where(Subject.name.ilike(f"%{params['name']}%"))
-
         limit = params.get("limit", 100)
         offset = params.get("offset", 0)
         stm = stm.offset(offset).limit(limit)
@@ -34,9 +32,9 @@ class SubjectService:
             self.session.add(subject)
             await self.session.commit()
             return await self.get_subject_by_id(subject.id)
-        except Exception as e:
+        except Exception:
             await self.session.rollback()
-            raise e
+            raise
 
     async def update_subject(self, subject_id: int, subject_request: SubjectRequest, lecturer_id: int):
         try:
@@ -49,9 +47,9 @@ class SubjectService:
                 await self.session.commit()
                 await self.session.refresh(subject)
             return subject
-        except Exception as e:
+        except Exception:
             await self.session.rollback()
-            raise e
+            raise
 
     async def delete_subject(self, subject_id: int):
         db_subject = await self.get_subject_by_id(subject_id)

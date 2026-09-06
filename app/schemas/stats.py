@@ -1,6 +1,6 @@
-from pydantic import BaseModel
 from datetime import datetime
-from typing import Optional
+from pydantic import BaseModel
+
 
 class DocumentCountBySubjectResponse(BaseModel):
     subject_id: int
@@ -11,10 +11,10 @@ class QuizHistoryResponse(BaseModel):
     attempt_id: int
     quiz_id: int
     quiz_title: str
-    subject_title: Optional[str] = None
+    subject_title: str | None = None
     total_score: float
-    time_start: Optional[datetime] = None
-    time_submitted: Optional[datetime] = None
+    time_start: datetime | None = None
+    time_submitted: datetime | None = None
 
 class ProgressChartItem(BaseModel):
     time_submitted: datetime

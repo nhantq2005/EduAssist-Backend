@@ -1,14 +1,13 @@
 import uuid
-
 import jwt
-from fastapi import HTTPException, status, UploadFile, File
-from google.oauth2 import id_token
+from fastapi import HTTPException, UploadFile, status
 from google.auth.transport import requests as google_requests
+from google.oauth2 import id_token
 from sqlalchemy import or_, select
 from sqlalchemy.exc import SQLAlchemyError
 from sqlalchemy.ext.asyncio import AsyncSession
 from app.core.config import settings
-from app.core.security import get_password_hash, verify_password, create_access_token
+from app.core.security import create_access_token, get_password_hash, verify_password
 from app.models.user import User
 from app.schemas.user import GoogleLoginRequest
 from app.utils.cloudinary_utils import upload_file_to_cloudinary

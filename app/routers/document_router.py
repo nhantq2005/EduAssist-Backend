@@ -3,7 +3,7 @@ from fastapi import APIRouter, BackgroundTasks, Depends, File, Form, HTTPExcepti
 from app.api.dependencies import get_current_user, get_document_service
 from app.core.permissions import require_role
 from app.models import User
-from app.schemas.document import DocumentRequest,DocumentResponse, DocumentUpdateRequest
+from app.schemas.document import DocumentRequest, DocumentResponse, DocumentUpdateRequest
 from app.services.document_service import DocumentService
 
 router = APIRouter(tags=["documents"])

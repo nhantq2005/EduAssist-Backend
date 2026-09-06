@@ -20,7 +20,7 @@ class QuestionService:
         limit = params.get("limit", 100)
         result = await self.session.execute(
             select(Question).options(selectinload(Question.options)).offset(skip).limit(limit))
-        return list(result.scalars().all())
+        return result.scalars().all()
 
     async def create_question(self, question_request: QuestionRequest) -> Question:
         question_data = question_request.model_dump(exclude={"options"})
@@ -63,7 +63,7 @@ class QuestionService:
             .options(selectinload(Question.options))
             .where(Question.id.in_(question_ids))
         )
-        return list(result.scalars().all())
+        return result.scalars().all()
 
 
     async def get_question_by_quiz(self, quiz_id: int, params:dict):
@@ -72,7 +72,7 @@ class QuestionService:
         stm = select(Question).options(selectinload(Question.options)).where(Question.quiz_id == quiz_id).order_by(Question.id)
         stm = stm.limit(limit).offset(offset)
         result = await self.session.execute(stm)
-        return list(result.scalars().all())
+        return result.scalars().all()
 
     async def update_question(self, question_id: int, question_request: QuestionRequest) -> Question | None:
         db_question = await self.get_question_by_id(question_id)

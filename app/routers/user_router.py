@@ -1,9 +1,9 @@
-from fastapi import APIRouter, Depends, HTTPException, status, Form, UploadFile, File
+from fastapi import APIRouter, Depends, File, Form, HTTPException, UploadFile, status
 from pydantic import EmailStr
 from app.api.dependencies import get_current_user, get_user_service
 from app.core.security import create_access_token, create_refresh_token
-from app.models.user import User, Gender, UserRole
-from app.schemas.user import UserCreate, UserLogin, UserResponse, RefreshTokenRequest
+from app.models.user import Gender, User, UserRole
+from app.schemas.user import RefreshTokenRequest, UserLogin, UserResponse
 from app.services.user_service import UserService
 
 router = APIRouter(prefix="/users", tags=["Users"])
@@ -72,4 +72,4 @@ async def refresh_token(
         request: RefreshTokenRequest,
         user_service: UserService = Depends(get_user_service)
 ):
-    return await user_service.refresh_access_token(request.refresh_token)
+    return await user_service.refresh_access_token(refresh_token=request.refresh_token)

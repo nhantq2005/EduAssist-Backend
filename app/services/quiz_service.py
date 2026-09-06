@@ -44,7 +44,7 @@ class QuizService:
         except Exception as e:
             raise Exception(f"Lỗi khi sinh trắc nghiệm: {e!s}")
 
-    async def get_quizzes(self, params: dict, user_id: int, role: str) -> list[Quiz]:
+    async def get_quizzes(self, params: dict, user_id: int, role: str):
         stm = select(Quiz)
 
         if role == "STUDENT":
@@ -65,14 +65,14 @@ class QuizService:
 
         result = await self.session.execute(stm)
 
-        return list(result.scalars().all())
+        return result.scalars().all()
 
     async def get_quiz_by_subject(self, subject_id: int, params: dict):
         limit = params.get('limit', 100)
         offset = params.get('offset', 0)
         stm = select(Quiz).where(Quiz.subject_id == subject_id).offset(offset).limit(limit)
         result = await self.session.execute(stm)
-        return list(result.scalars().all())
+        return result.scalars().all()
 
     async def get_quiz_by_id(self, quiz_id: int) -> Quiz:
         quiz = await self.session.get(Quiz, quiz_id)
@@ -90,9 +90,9 @@ class QuizService:
             await self.session.commit()
             await self.session.refresh(quiz)
             return quiz
-        except Exception as e:
+        except Exception:
             await self.session.rollback()
-            raise e
+            raise
 
     async def delete_quiz(self, quiz_id: int) -> Quiz:
         quiz = await self.session.get(Quiz, quiz_id)
@@ -103,6 +103,6 @@ class QuizService:
             await self.session.delete(quiz)
             await self.session.commit()
             return quiz
-        except Exception as e:
+        except Exception:
             await self.session.rollback()
-            raise e
+            raise

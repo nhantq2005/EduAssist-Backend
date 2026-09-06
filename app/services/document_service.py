@@ -3,10 +3,10 @@ import pickle
 from pathlib import Path
 from fastapi import BackgroundTasks, HTTPException, UploadFile, status
 from langchain_community.retrievers import BM25Retriever
-from langchain_community.vectorstores import Chroma
 from sqlalchemy import Date, cast
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.future import select
+from app.core.config import settings
 from app.core.websocket import manager
 from app.db.session import AsyncSessionLocal
 from app.models.document import Document, ProcessingStatus
@@ -15,7 +15,7 @@ from app.rag.processing_pipeline import process_document_pipeline
 from app.schemas.document import DocumentRequest, DocumentUpdateRequest
 from app.utils.cloudinary_utils import upload_file_to_cloudinary
 
-ALLOWED_EXTENSIONS = {".pdf", ".doc", ".docx", ".ppt", ".pptx"}
+ALLOWED_EXTENSIONS = {".pdf"}
 
 logger = logging.getLogger(__name__)
 
@@ -53,22 +53,14 @@ async def run_pipeline_background_task(document_id: int, file_bytes: bytes, file
                 document.process_status = ProcessingStatus.FAILED
                 await bg_session.commit()
 
+
 def delete_document_vector_db(file_name: str):
     try:
-        CURRENT_FILE = Path(__file__).resolve()
-        ROOT_DIR = CURRENT_FILE.parents[2]
-        chroma_db_dir = ROOT_DIR / "chroma_db"
-        bm25_save_path = ROOT_DIR / "bm25_index.pkl"
-
-        vectorstore = Chroma(
-            persist_directory=str(chroma_db_dir),
-            embedding_function=rag_models_instance.embeddings,
-            collection_name="cslt_collection"
-        )
-
+        chroma_db_dir = settings.CHROMA_DB_DIR
+        bm25_save_path = settings.BM25_SAVE_PATH
+        vectorstore = rag_models_instance.vectorstore
         vectorstore._collection.delete(where={"source": file_name})
-        print(f"[*] Đã xóa toàn bộ vector của '{file_name}' khỏi ChromaDB.")
-
+        print(f"Đã xóa toàn bộ vector của '{file_name}' khỏi ChromaDB.")
         bm25 = rag_models_instance.bm25_retriever
         if bm25 and hasattr(bm25, 'docs'):
             remaining_docs = [
@@ -78,7 +70,7 @@ def delete_document_vector_db(file_name: str):
 
             if remaining_docs:
                 new_bm25 = BM25Retriever.from_documents(remaining_docs)
-                rag_models_instance.bm25_retriever = new_bm25  # Cập nhật model đang chạy trên RAM
+                rag_models_instance.bm25_retriever = new_bm25
 
                 with open(bm25_save_path, 'wb') as f:
                     pickle.dump(new_bm25, f)
@@ -86,11 +78,11 @@ def delete_document_vector_db(file_name: str):
             else:
                 rag_models_instance.bm25_retriever = None
                 if bm25_save_path.exists():
-                    bm25_save_path.unlink()  # Xóa luôn file pkl
+                    bm25_save_path.unlink()
                 print("CSDL rỗng, đã xóa file BM25.")
 
     except Exception as e:
-        print(f"[LỖI] Xóa dữ liệu AI thất bại: {e!s}")
+        print(f"Xóa dữ liệu AI thất bại: {e!s}")
 
 
 class DocumentService:
@@ -116,9 +108,7 @@ class DocumentService:
 
         try:
             await file.seek(0)
-
             upload_result = await upload_file_to_cloudinary(file=file, folder="documents")
-
             file_url = upload_result.get("secure_url")
 
             if not file_url:
@@ -144,15 +134,10 @@ class DocumentService:
                 file_bytes,
                 file.filename
             )
-
             return document
-
-        except Exception as e:
+        except Exception:
             await self.session.rollback()
-            raise HTTPException(
-                status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                detail=f"Không thể tạo tài liệu: {e!s}",
-            )
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail="Không thể tạo tài liệu")
 
     async def get_document_by_id(self, document_id: int):
         stm = select(Document).where(Document.id == document_id)
@@ -164,7 +149,6 @@ class DocumentService:
         limit = params.get('limit', 100)
 
         stm = select(Document)
-
         if params.get('title') is not None:
             stm = stm.where(Document.title.ilike(f"%{params['title']}%"))
 
@@ -179,7 +163,7 @@ class DocumentService:
 
         stm = stm.offset(offset).limit(limit)
         result = await self.session.execute(stm)
-        return list(result.scalars().all())
+        return result.scalars().all()
 
     async def update_document(
             self,
@@ -270,9 +254,9 @@ class DocumentService:
             if background_tasks and file_name:
                 background_tasks.add_task(delete_document_vector_db, file_name)
             return True
-        except Exception as e:
+        except Exception:
             await self.session.rollback()
-            raise e
+            raise
 
     async def get_documents_by_subject_id(self, subject_id: int, params: dict):
         offset = params.get('offset', 0)
@@ -280,4 +264,4 @@ class DocumentService:
         stm = select(Document).where(Document.subject_id == subject_id)
         stm = stm.offset(offset).limit(limit)
         result = await self.session.execute(stm)
-        return list(result.scalars().all())
+        return result.scalars().all()

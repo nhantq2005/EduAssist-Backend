@@ -30,9 +30,9 @@ class User(Base):
     is_active: Mapped[bool] = mapped_column(Boolean, default=True)
     created_date: Mapped[datetime] = mapped_column(DateTime, default=datetime.now)
 
-    documents: Mapped[list["Document"]] = relationship(back_populates="lecturer", cascade="all, delete-orphan")
+    documents: Mapped[list["Document"]] = relationship(back_populates="lecturer")
     attempt_quizzes: Mapped[list["QuizAttempt"]] = relationship(back_populates="user", cascade="all, delete-orphan")
-    subjects: Mapped[list["Subject"]] = relationship(back_populates="lecturer", cascade="all, delete-orphan")
+    subjects: Mapped[list["Subject"]] = relationship(back_populates="lecturer")
     chat_sessions: Mapped[list["ChatSession"]] = relationship(back_populates="user", cascade="all, delete-orphan")
     flashcard_sets: Mapped[list["FlashcardSet"]] = relationship(back_populates="user", cascade="all, delete-orphan")
 

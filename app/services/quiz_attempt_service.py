@@ -49,7 +49,7 @@ class QuizAttemptService:
         offset = params.get("offset", 0)
         stm = select(QuizAttempt).options(selectinload(QuizAttempt.quiz)).offset(offset).limit(limit)
         result = await self.session.execute(stm)
-        return list(result.scalars().all())
+        return result.scalars().all()
 
     async def get_user_quiz_attempts(
             self, user_id: int, params: dict
@@ -65,7 +65,7 @@ class QuizAttemptService:
             .order_by(QuizAttempt.created_date.desc())
         )
         result = await self.session.execute(stm)
-        return list(result.scalars().all())
+        return result.scalars().all()
 
     async def submit_quiz(self, user_id: int, quiz_id: int, request_data):
         stm_quiz = select(Quiz).where(Quiz.id == quiz_id)
@@ -116,11 +116,8 @@ class QuizAttemptService:
             self.session.add(user_answer)
 
         score = (correct_count / total_questions * 10) if total_questions > 0 else 0.0
-
         quiz_attempt.correct_count = correct_count
         quiz_attempt.total_score = score
-
         await self.session.commit()
         await self.session.refresh(quiz_attempt)
-
         return quiz_attempt

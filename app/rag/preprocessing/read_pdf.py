@@ -4,25 +4,13 @@ import re
 import statistics
 import unicodedata
 from collections import defaultdict
-from pathlib import Path
 import pymupdf
 from app.rag.preprocessing.convert_to_unicode import convert_tcvn3_to_unicode
-from app.rag.preprocessing.utils import CODE_SYNTAX, COMPARISON_OPERATORS
-
-CURRENT_FILE = Path(__file__).resolve()
-ROOT = (CURRENT_FILE.parents[3] if len(CURRENT_FILE.parents) > 3 else CURRENT_FILE.parent)
-INPUT_DIR = ROOT / "data"
-OUTPUT_DIR = ROOT / "processed_data"
+from app.rag.preprocessing.utils import CODE_SYNTAX, COMPARISON_OPERATORS, TOC_RE, PAGE_RE, LIST_RE, HEADING_RE
 
 SKIP_TOC = True
 REMOVE_HEADER_FOOTER = True
 WRITE_PREVIEW = True
-
-PAGE_RE = re.compile(r"^\s*(?:\d{1,4}|[ivxlcdm]{1,8})\s*$", re.I)
-LIST_RE = re.compile(r"^\s*(?:[•▪◦●○■□◆◇‣⁃–—-]|§|\(?[A-Za-z]\)|\d+(?:\.\d+)*[.)])\s+")
-HEADING_RE = re.compile(r"^\s*(?:chương\s+\d+|chapter\s+\d+|\d+(?:\.\d+)+\.?\s+)", re.I,)
-TOC_RE = re.compile(r"\.{4,}\s*\d+\s*$")
-
 
 def clean(text: str):
     text = convert_tcvn3_to_unicode(text)
@@ -171,7 +159,7 @@ def is_code(lines: list[dict]):
     return strong >= 2 or (strong >= 1 and mono / max(1, len(lines)) >= 0.60)
 
 def heading_level(text: str):
-    if re.match(r"^\s*(?:chương|chapter)\s+\d+", text, re.I):
+    if re.match(r"^\s*(?:chương|chapter)\s+\d+", text, re.IGNORECASE):
         return 1
 
     match = re.match(r"^\s*(\d+(?:\.\d+)+)", text)
@@ -202,14 +190,12 @@ def to_blocks(page: dict, edges: set[str], body_size: float):
 
         text_lines = [line["text"] for line in lines]
         text = clean(" ".join(text_lines))
-        bbox = [round(float(value), 2) for value in raw_block["bbox"]]
 
         if is_code(lines):
             result.append(
                 {
                     "block_type": "code",
                     "text": "\n".join(text_lines),
-                    "bbox": bbox,
                 }
             )
             continue
@@ -224,7 +210,6 @@ def to_blocks(page: dict, edges: set[str], body_size: float):
                             {
                                 "block_type": "list_item",
                                 "text": clean(" ".join(current)),
-                                "bbox": bbox,
                             }
                         )
                     current = [value]
@@ -235,7 +220,6 @@ def to_blocks(page: dict, edges: set[str], body_size: float):
                         {
                             "block_type": "paragraph",
                             "text": clean(value),
-                            "bbox": bbox,
                         }
                     )
 
@@ -244,7 +228,6 @@ def to_blocks(page: dict, edges: set[str], body_size: float):
                     {
                         "block_type": "list_item",
                         "text": clean(" ".join(current)),
-                        "bbox": bbox,
                     }
                 )
             continue
@@ -259,7 +242,6 @@ def to_blocks(page: dict, edges: set[str], body_size: float):
                     "block_type": "heading",
                     "heading_level": heading_level(text),
                     "text": text,
-                    "bbox": bbox,
                 }
             )
         else:
@@ -267,7 +249,6 @@ def to_blocks(page: dict, edges: set[str], body_size: float):
                 {
                     "block_type": "paragraph",
                     "text": text,
-                    "bbox": bbox,
                 }
             )
 
@@ -304,31 +285,9 @@ def extract_pdf(pdf_bytes: bytes, file_name: str):
                     "heading_level": block.get("heading_level"),
                     "heading_path": headings.copy(),
                     "text": block["text"],
-                    "bbox": block["bbox"],
                 }
             )
 
-    # jsonl_path = output_dir / "blocks.jsonl"
-    #
-    # with jsonl_path.open("w", encoding="utf-8") as file:
-    #     for record in records:
-    #         file.write(json.dumps(record, ensure_ascii=False) + "\n")
-    #
-    # if WRITE_PREVIEW:
-    #     preview = []
-    #
-    #     for record in records:
-    #         preview.append(
-    #             f"[TRANG {record['page_number']}] "
-    #             f"[{record['block_type'].upper()}]\n"
-    #             f"{record['text']}"
-    #         )
-    #
-    #     (output_dir / "preview.txt").write_text(
-    #         "\n\n".join(preview),
-    #         encoding="utf-8",
-    #     )
-    #
-    # print(f"[OK] {pdf_path.name}: {len(records)} blocks")
-
     return records
+
+
