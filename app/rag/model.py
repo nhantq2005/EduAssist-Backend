@@ -46,7 +46,8 @@ class RAGModels:
             cls._instance.vectorstore = Chroma(
                 persist_directory=str(chroma_db_dir),
                 embedding_function=cls._instance.embeddings,
-                collection_name="cslt_collection"
+                collection_name="cslt_collection",
+                collection_metadata={"hnsw:space": "l2"}
             )
 
         print("Tải mô hình thành công")
