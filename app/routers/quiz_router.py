@@ -1,11 +1,11 @@
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends, HTTPException, status, BackgroundTasks
 from app.api.dependencies import get_current_user, get_question_service, get_quiz_service
 from app.core.permissions import require_role
 from app.models import User
 from app.rag.generate.quiz_generator import QuizData
 from app.schemas.quiz import QuizCreate, QuizGenerateRequest, QuizResponse, QuizUpdate
 from app.services.question_service import QuestionService
-from app.services.quiz_service import QuizService
+from app.services.quiz_service import QuizService, background_generate_quiz
 
 router = APIRouter(tags=["Quizzes"])
 
@@ -20,21 +20,22 @@ async def create_quiz(
     return await quiz_service.create_quiz(quiz_request=quiz_request, user_id=current_user.id)
 
 
-@router.post("/quizzes/generate", response_model=QuizData, status_code=status.HTTP_201_CREATED)
+@router.post("/quizzes/generate", status_code=status.HTTP_202_ACCEPTED)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def generate_quiz_by_ai(
         request: QuizGenerateRequest,
-        current_user: User = Depends(get_current_user),
-        quiz_service: QuizService = Depends(get_quiz_service),
-        question_service: QuestionService = Depends(get_question_service)
+        background_tasks: BackgroundTasks,
+        current_user: User = Depends(get_current_user)
 ):
     try:
-        return await quiz_service.generate_and_save_quiz(request=request,
-                                                         user_id=current_user.id,
-                                                         question_service=question_service)
+        background_tasks.add_task(
+            background_generate_quiz,
+            request=request,
+            user_id=current_user.id
+        )
+        return {"message": "Bắt đầu tạo bài trắc nghiệm. Bạn sẽ nhận được thông báo khi hoàn tất."}
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
-
 
 @router.get("/quizzes", response_model=list[QuizResponse], status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])

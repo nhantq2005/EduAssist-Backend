@@ -27,27 +27,23 @@ async def run_pipeline_background_task(document_id: int, file_bytes: bytes, file
             if not document:
                 logger.warning(f"Không tìm thấy document ID {document_id}")
                 return
-
             document.process_status = ProcessingStatus.PROCESSING
             await bg_session.commit()
             await process_document_pipeline(document_id, file_bytes, file_name, bg_session)
-
             document.process_status = ProcessingStatus.COMPLETED
             await bg_session.commit()
-
-            await manager.broadcast({
-                "type": "DOCUMENT_COMPLETED",
+            await manager.send_personal_message({
+                "type": "COMPLETED",
                 "document_id": document_id,
                 "message": f"Tài liệu {file_name} đã xử lý xong!"
-            })
+            }, document.lecturer_id)
             logger.info(f"Đã xử lý xong tài liệu ID: {document_id}")
-
         except Exception as e:
-            await manager.broadcast({
-                "type": "DOCUMENT_FAILED",
+            await manager.send_personal_message({
+                "type": "FAILED",
                 "document_id": document_id,
                 "message": f"Xử lý lỗi: {file_name}"
-            })
+            }, document.lecturer_id)
             logger.error(f"Lỗi khi xử lý tài liệu {document_id}: {e!s}")
             if 'document' in locals() and document:
                 document.process_status = ProcessingStatus.FAILED
