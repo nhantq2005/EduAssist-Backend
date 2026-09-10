@@ -31,7 +31,7 @@ async def generate_from_chromadb(db: AsyncSession, document_id: int, user_id: in
     current_text = ""
     for chunk_text in chunks:
         current_text += chunk_text + "\n\n"
-        if len(current_text) > 1500:
+        if len(current_text) > 5000:
             merged_texts.append(current_text)
             current_text = ""
     if current_text:
@@ -59,15 +59,15 @@ async def generate_from_chromadb(db: AsyncSession, document_id: int, user_id: in
                     error_msg = str(e)
                     print(f"Lỗi gọi LLM ở đoạn text này (lần {attempt + 1}/3): {error_msg}")
                     if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
-                        print("Chạm ngưỡng giới hạn API, đợi 15 giây rồi thử lại...")
+                        print("Đã đạt giới hạn. Vui lòng thử lại sau")
                         await asyncio.sleep(15)
                     else:
                         break
             return None
 
-    sampled_texts = random.sample(merged_texts, min(10, len(merged_texts)))
+    # sampled_texts = random.sample(merged_texts, min(10, len(merged_texts)))
 
-    tasks = [process_block(block) for block in sampled_texts]
+    tasks = [process_block(block) for block in merged_texts]
     results = await asyncio.gather(*tasks)
 
     all_extracted_cards = []

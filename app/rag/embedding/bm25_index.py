@@ -14,5 +14,4 @@ def update_bm25_index(new_documents: list[Document]):
     updated_retriever = BM25Retriever.from_documents(all_docs)
     with open(settings.BM25_SAVE_PATH, 'wb') as f:
         pickle.dump(updated_retriever, f)
-
     print(f"Đã cập nhật thành công BM25 Index ({len(all_docs)} chunks)!")

@@ -5,7 +5,6 @@ from app.rag.model import rag_models_instance
 
 def embed_and_save_to_chroma(documents: list[Document], collection_name: str = "data_collection"):
     chroma_db_dir = settings.CHROMA_DB_DIR
-
     if not documents:
         print("Document không có dữ liệu")
         return
