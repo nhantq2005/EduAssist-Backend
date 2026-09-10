@@ -1,6 +1,7 @@
 import logging
 import pickle
 from pathlib import Path
+from urllib.parse import unquote
 from fastapi import BackgroundTasks, HTTPException, UploadFile, status
 from langchain_community.retrievers import BM25Retriever
 from sqlalchemy import Date, cast
@@ -78,7 +79,7 @@ def delete_document_vector_db(file_name: str):
                 print("CSDL rỗng, đã xóa file BM25.")
 
     except Exception as e:
-        print(f"Xóa dữ liệu AI thất bại: {e!s}")
+        print(f"Xóa dữ liệu thất bại: {e!s}")
 
 
 class DocumentService:
@@ -114,7 +115,7 @@ class DocumentService:
                 **document_request.model_dump(),
                 file_url=file_url,
                 file_type=extension.removeprefix("."),
-                file_name=file.filename,
+                file_name=unquote(file.filename),
                 process_status=ProcessingStatus.PENDING,
             )
 
@@ -175,22 +176,17 @@ class DocumentService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Không tìm thấy document với id: {document_id}"
             )
-
         try:
             update_data = document_request.model_dump(
                 exclude_unset=True,
                 exclude_none=True,
             )
-
             for field_name, value in update_data.items():
                 setattr(db_document, field_name, value)
-
             if file is not None:
                 if not file.filename:
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Tên file không hợp lệ")
-
                 extension = Path(file.filename).suffix.lower()
-
                 if extension not in ALLOWED_EXTENSIONS:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
@@ -211,15 +207,12 @@ class DocumentService:
                         status_code=status.HTTP_502_BAD_GATEWAY,
                         detail="Cloudinary không trả về secure_url",
                     )
-
                 db_document.file_url = file_url
                 db_document.file_type = extension.removeprefix(".")
                 db_document.file_name = file.filename
                 db_document.process_status = ProcessingStatus.PENDING
-
             await self.session.commit()
             await self.session.refresh(db_document)
-
             if file is not None and background_tasks is not None:
                 await file.seek(0)
                 file_bytes = await file.read()

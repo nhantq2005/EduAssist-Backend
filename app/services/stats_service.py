@@ -67,7 +67,6 @@ class StatsService:
 
 
     async def get_score_distribution(self, student_id: int):
-
         stm = select(QuizAttempt.total_score).where(
             QuizAttempt.user_id == student_id,
             QuizAttempt.is_completed == True
