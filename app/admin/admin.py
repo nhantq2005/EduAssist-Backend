@@ -18,7 +18,7 @@ class UserAdmin(ModelView, model=User):
     column_list = [User.id, User.username, User.name, User.email, User.role, User.is_active]
     column_searchable_list = [User.username, User.email, User.name]
     form_excluded_columns = [User.documents, User.attempt_quizzes, User.subjects,
-                             User.chat_sessions]
+                             User.chat_sessions, User.flashcard_sets]
     icon = "fa-solid fa-user"
 
     column_filters = [

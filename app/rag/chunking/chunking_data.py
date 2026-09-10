@@ -57,14 +57,3 @@ def create_langchain_documents(grouped_sections: dict[str, Any]) -> list[Documen
         documents.extend(splits)
 
     return documents
-
-#
-# def save_chunks_to_jsonl(chunks: List[Document], output_path: Path):
-#     output_path.parent.mkdir(parents=True, exist_ok=True)
-#     with open(output_path, 'w', encoding='utf-8') as f:
-#         for chunk in chunks:
-#             chunk_dict = {
-#                 "page_content": chunk.page_content,
-#                 "metadata": chunk.metadata
-#             }
-#             f.write(json.dumps(chunk_dict, ensure_ascii=False) + "\n")
