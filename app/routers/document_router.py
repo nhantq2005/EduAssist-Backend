@@ -19,16 +19,16 @@ async def create_document(
         current_user: User = Depends(get_current_user),
         document_service: DocumentService = Depends(get_document_service)
 ):
+    if file.size > 50 * 1024 * 1024:
+        raise HTTPException(status_code=status.HTTP_413_REQUEST_ENTITY_TOO_LARGE,detail="Dung lương file quá lớn")
     document_request = DocumentRequest(
         title=title,
         lecturer_id=current_user.id,
         subject_id=subject_id
     )
-    document = await document_service.create_document(
-        document_request=document_request,
+    document = await document_service.create_document(document_request=document_request,
         file=file,
-        background_tasks=background_tasks
-    )
+        background_tasks=background_tasks)
 
     return document
 
@@ -72,7 +72,7 @@ async def get_document_by_id(
 ):
     document = await document_service.get_document_by_id(document_id=document_id)
     if not document:
-        raise HTTPException(status_code=404, detail="Không tìm thấy tài liệu")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy tài liệu")
     return document
 
 
@@ -99,7 +99,7 @@ async def update_document(
         background_tasks=background_tasks
     )
     if not document:
-        raise HTTPException(status_code=404, detail="Không tìm thấy tài liệu để cập nhật")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy tài liệu để cập nhật")
     return document
 
 
@@ -113,4 +113,4 @@ async def delete_document(
 ):
     document = await document_service.delete_document(document_id=document_id, background_tasks=background_tasks)
     if not document:
-        raise HTTPException(status_code=404, detail="Không tìm thấy tài liệu để xóa")
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy tài liệu để xóa")
