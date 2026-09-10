@@ -1,0 +1,27 @@
+[
+  {
+    "question": "Đặc điểm của ngôn ngữ Java là gì?",
+    "ttft": 13.5792,
+    "total_time": 15.1105
+  },
+  {
+    "question": "Ưu điểm và nhược điểm của Lập trình tuyến tính là gì?",
+    "ttft": 10.1642,
+    "total_time": 10.9313
+  },
+  {
+    "question": "Cho ví dụ code minh họa cho phần Nhập xuất console?",
+    "ttft": 12.0545,
+    "total_time": 14.1408
+  },
+  {
+    "question": "Biến là gì?",
+    "ttft": 12.598,
+    "total_time": 14.2055
+  },
+  {
+    "question": "So sánh overriding và overloading",
+    "ttft": 12.1954,
+    "total_time": 14.6768
+  }
+]

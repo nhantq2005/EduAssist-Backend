@@ -1,0 +1,422 @@
+[
+  {
+    "id": 1,
+    "question": "Trong Java, tính đa hình được thể hiện qua những cơ chế nào?",
+    "expected_source": "01-Gioi-thieu.pdf",
+    "expected_page": 21
+  },
+  {
+    "id": 2,
+    "question": "Lập trình tuyến tính có những ưu và nhược điểm gì?",
+    "expected_source": "01-Gioi-thieu.pdf",
+    "expected_page": 4
+  },
+  {
+    "id": 3,
+    "question": "Đặc điểm của ngôn ngữ Java là gì?",
+    "expected_source": "02-Java-can-ban.pdf",
+    "expected_page": 6
+  },
+  {
+    "id": 4,
+    "question": "Làm thế nào để nhập xuất dữ liệu từ console trong Java? Cho ví dụ code minh họa.",
+    "expected_source": "02-Java-can-ban.pdf",
+    "expected_page": 42
+  },
+  {
+    "id": 5,
+    "question": "Cú pháp tạo và truy cập đối tượng trong Java như thế nào?",
+    "expected_source": "03-Lop-va-doi-tuong.pdf",
+    "expected_page": 19
+  },
+  {
+    "id": 6,
+    "question": "Dynamic Binding (Liên kết động) trong tính kế thừa là gì?",
+    "expected_source": "04-Ke-thua.pdf",
+    "expected_page": 23
+  },
+  {
+    "id": 7,
+    "question": "Kế thừa trong Java là gì? Từ khóa nào được sử dụng để kế thừa?",
+    "expected_source": "04-Ke-thua.pdf",
+    "expected_page": 4
+  },
+  {
+    "id": 8,
+    "question": "Lớp trừu tượng (Abstract class) trong UML và Java được thể hiện như thế nào?",
+    "expected_source": "05-Da-hinh.pdf",
+    "expected_page": 6
+  },
+  {
+    "id": 9,
+    "question": "Trình bày chi tiết về tính đa hình và liên kết động trong Java.",
+    "expected_source": "05-Da-hinh.pdf",
+    "expected_page": 45
+  },
+  {
+    "id": 10,
+    "question": "Ngôn ngữ định nghĩa dữ liệu (DDL) trong hệ quản trị CSDL là gì?",
+    "expected_source": "CHUONG_1_CSDL.pdf",
+    "expected_page": 33
+  },
+  {
+    "id": 11,
+    "question": "Cho ví dụ về các chương trình ứng dụng phục vụ người dùng cuối trong CSDL.",
+    "expected_source": "CHUONG_1_CSDL.pdf",
+    "expected_page": 12
+  },
+  {
+    "id": 12,
+    "question": "Môi trường của cơ sở dữ liệu bao gồm những thành phần nào?",
+    "expected_source": "CHUONG_2_CSDL.pdf",
+    "expected_page": 17
+  },
+  {
+    "id": 13,
+    "question": "Ngôn ngữ thế hệ thứ 4 trong môi trường cơ sở dữ liệu là gì?",
+    "expected_source": "CHUONG_2_CSDL.pdf",
+    "expected_page": 9
+  },
+  {
+    "id": 14,
+    "question": "Mối liên kết trong mô hình thực thể kết hợp (ER) là gì?",
+    "expected_source": "CHUONG_3_CSDL.pdf",
+    "expected_page": 2
+  },
+  {
+    "id": 15,
+    "question": "Thế nào là thuộc tính lưu trữ và thuộc tính dẫn xuất trong mô hình ER?",
+    "expected_source": "CHUONG_3_CSDL.pdf",
+    "expected_page": 2
+  },
+  {
+    "id": 16,
+    "question": "Ràng buộc giá trị NOT NULL đối với một thuộc tính trong CSDL có ý nghĩa gì?",
+    "expected_source": "CHUONG_4_CSDL.pdf",
+    "expected_page": 15
+  },
+  {
+    "id": 17,
+    "question": "Mã môn thi (mamt) trong bài tập quản lý môn thi dùng để làm gì?",
+    "expected_source": "CHUONG_4_CSDL.pdf",
+    "expected_page": 24
+  },
+  {
+    "id": 18,
+    "question": "Điều kiện phép chọn kết hợp trong đại số quan hệ được biểu diễn như thế nào?",
+    "expected_source": "CHUONG_5_CSDL.pdf",
+    "expected_page": 21
+  },
+  {
+    "id": 19,
+    "question": "Cho ví dụ về phép toán quan hệ trên miền (Tuple Relational Calculus).",
+    "expected_source": "CHUONG_5_CSDL.pdf",
+    "expected_page": 43
+  },
+  {
+    "id": 20,
+    "question": "Cấu trúc điều khiển (control structures) trong ngôn ngữ lập trình có vai trò gì?",
+    "expected_source": "CSLT_Chuong_1.pdf",
+    "expected_page": 24
+  },
+  {
+    "id": 21,
+    "question": "Các khái niệm cơ bản như lập trình, ngôn ngữ lập trình, chương trình dịch là gì?",
+    "expected_source": "CSLT_Chuong_1.pdf",
+    "expected_page": 2
+  },
+  {
+    "id": 22,
+    "question": "Khi viết biểu thức toán học phức tạp trong C++, cần lưu ý điều gì để code dễ đọc hơn?",
+    "expected_source": "CSLT_Chuong_2.pdf",
+    "expected_page": 50
+  },
+  {
+    "id": 23,
+    "question": "Kiểu dữ liệu char và unsigned char trong C++ có phạm vi biểu diễn như thế nào?",
+    "expected_source": "CSLT_Chuong_2.pdf",
+    "expected_page": 13
+  },
+  {
+    "id": 24,
+    "question": "Cho ví dụ sử dụng vòng lặp do-while để yêu cầu người dùng nhập điểm hợp lệ từ 0 đến 10.",
+    "expected_source": "CSLT_Chuong_3.pdf",
+    "expected_page": 89
+  },
+  {
+    "id": 25,
+    "question": "Làm thế nào để sử dụng biến đếm (counter) trong vòng lặp while? Cho ví dụ.",
+    "expected_source": "CSLT_Chuong_3.pdf",
+    "expected_page": 51
+  },
+  {
+    "id": 26,
+    "question": "Các bước cơ bản để viết một hàm trong C++ là gì?",
+    "expected_source": "CSLT_Chuong_4.pdf",
+    "expected_page": 11
+  },
+  {
+    "id": 27,
+    "question": "Quy tắc về giá trị trả về của một hàm không phải kiểu void trong C++ là gì?",
+    "expected_source": "CSLT_Chuong_4.pdf",
+    "expected_page": 21
+  },
+  {
+    "id": 28,
+    "question": "Cách khởi tạo giá trị cho mảng số thực (double) trong C++ như thế nào?",
+    "expected_source": "CSLT_Chuong_5.pdf",
+    "expected_page": 10
+  },
+  {
+    "id": 29,
+    "question": "Mục tiêu cơ bản khi học các thao tác trên mảng (như tìm kiếm, tính toán) là gì?",
+    "expected_source": "CSLT_Chuong_5.pdf",
+    "expected_page": 2
+  },
+  {
+    "id": 30,
+    "question": "Định dạng của một lệnh 20 bit trong kiến trúc máy tính thế hệ đầu tiên gồm những thành phần nào?",
+    "expected_source": "HDH_Chuong_1.pdf",
+    "expected_page": 31
+  },
+  {
+    "id": 31,
+    "question": "Tại sao màn hình hiển thị lại cần dán kính lọc phân cực ở phía trước và sau?",
+    "expected_source": "HDH_Chuong_1.pdf",
+    "expected_page": 81
+  },
+  {
+    "id": 32,
+    "question": "Hệ điều hành thế hệ thứ 5 (từ 1990) tập trung vào những thiết bị nào?",
+    "expected_source": "HDH_Chuong_2.pdf",
+    "expected_page": 16
+  },
+  {
+    "id": 33,
+    "question": "Quy trình thực thi chương trình bằng phiếu đục lỗ trong hệ điều hành thế hệ 2 diễn ra như thế nào?",
+    "expected_source": "HDH_Chuong_2.pdf",
+    "expected_page": 12
+  },
+  {
+    "id": 34,
+    "question": "Một luồng (thread) có thể tạo ra một luồng khác trong cùng tiến trình hay không? Nó cung cấp những gì?",
+    "expected_source": "HDH_Chuong_3.pdf",
+    "expected_page": 34
+  },
+  {
+    "id": 35,
+    "question": "Ưu điểm của luồng mức nhân (Kernel-Level Thread) so với luồng mức người dùng là gì khi một luồng bị block?",
+    "expected_source": "HDH_Chuong_3.pdf",
+    "expected_page": 42
+  },
+  {
+    "id": 36,
+    "question": "Trạng thái không an toàn trong cấp phát tài nguyên hệ điều hành xảy ra khi nào? Cho ví dụ.",
+    "expected_source": "HDH_Chuong_4.pdf",
+    "expected_page": 29
+  },
+  {
+    "id": 37,
+    "question": "Trong đồ thị cấp phát tài nguyên, tập đỉnh V được chia thành những tập con nào?",
+    "expected_source": "HDH_Chuong_4.pdf",
+    "expected_page": 9
+  },
+  {
+    "id": 38,
+    "question": "Đặc tính duy trì dữ liệu của RAM tĩnh (SRAM) phụ thuộc vào yếu tố nào?",
+    "expected_source": "HDH_Chuong_5.pdf",
+    "expected_page": 10
+  },
+  {
+    "id": 39,
+    "question": "Page offset (d) trong phân trang bộ nhớ dùng để làm gì?",
+    "expected_source": "HDH_Chuong_5.pdf",
+    "expected_page": 33
+  },
+  {
+    "id": 40,
+    "question": "Kích thước (size) của tập tin được tính bằng những đơn vị nào?",
+    "expected_source": "HDH_Chuong_6.pdf",
+    "expected_page": 9
+  },
+  {
+    "id": 41,
+    "question": "Trạng thái của các cluster trên đĩa trong hệ thống tập tin MS-DOS bao gồm những trạng thái nào?",
+    "expected_source": "HDH_Chuong_6.pdf",
+    "expected_page": 34
+  },
+  {
+    "id": 42,
+    "question": "Cho ví dụ về thuật toán lập lịch đĩa SCAN (thuật toán thang máy) với chuỗi truy xuất cụ thể.",
+    "expected_source": "HDH_Chuong_7.pdf",
+    "expected_page": 33
+  },
+  {
+    "id": 43,
+    "question": "Tại sao cần chuyển đổi cách nhập/xuất từ không đồng bộ sang đồng bộ ở cấp độ vật lý?",
+    "expected_source": "HDH_Chuong_7.pdf",
+    "expected_page": 15
+  },
+  {
+    "id": 44,
+    "question": "Cách lập bảng sự thật cho mạch đếm đồng bộ dựa trên JK flip-flop như thế nào?",
+    "expected_source": "HDH_Chuong_8.pdf",
+    "expected_page": 28
+  },
+  {
+    "id": 45,
+    "question": "Bảng sự thật của mạch cộng toàn phần (Full Adder) 1 bit được xây dựng ra sao?",
+    "expected_source": "HDH_Chuong_8.pdf",
+    "expected_page": 14
+  },
+  {
+    "id": 46,
+    "question": "Tiêu chuẩn đo lường tốc độ bộ xử lý và phương tiện truyền dẫn được xác định thế nào?",
+    "expected_source": "HDH_Chuong_9.pdf",
+    "expected_page": 2
+  },
+  {
+    "id": 47,
+    "question": "Tín hiệu tiếng nói và tín hiệu hình ảnh được biểu diễn dưới dạng hàm số như thế nào?",
+    "expected_source": "HDH_Chuong_9.pdf",
+    "expected_page": 20
+  },
+  {
+    "id": 48,
+    "question": "Từ khóa nào được dùng trong Java để một lớp cài đặt (implement) một interface?",
+    "expected_source": "Phương pháp lập trình hướng đối tượng trong Java.pdf",
+    "expected_page": 125
+  },
+  {
+    "id": 49,
+    "question": "Thế nào là một biến chưa được khởi tạo (uninitialized variable) trong Java?",
+    "expected_source": "Phương pháp lập trình hướng đối tượng trong Java.pdf",
+    "expected_page": 21
+  },
+  {
+    "id": 50,
+    "question": "Ví dụ về mã lệnh system call sử dụng hàm copy_from_user trong cơ chế ngắt là gì?",
+    "expected_source": "HDH_Chuong_7.pdf",
+    "expected_page": 18
+  },
+  {
+    "id": 51,
+    "question": "Điều kiện dom(A) = dom(B) trong biểu thức khóa ngoại của đại số quan hệ có ý nghĩa gì?",
+    "expected_source": "CHUONG_4_CSDL.pdf",
+    "expected_page": 17
+  },
+  {
+    "id": 52,
+    "question": "Khi nào thì một đối tượng trong Java bị máy ảo (JVM) dọn dẹp bằng Garbage Collection?",
+    "expected_source": "Phương pháp lập trình hướng đối tượng trong Java.pdf",
+    "expected_page": 58
+  },
+  {
+    "id": 53,
+    "question": "Trong thuật toán phát hiện tắc nghẽn, điều kiện nào chứng tỏ hệ thống đang bị Deadlock?",
+    "expected_source": "HDH_Chuong_4.pdf",
+    "expected_page": 51
+  },
+  {
+    "id": 54,
+    "question": "Lợi ích của việc sử dụng BufferedWriter so với FileWriter trong việc ghi file ở Java là gì?",
+    "expected_source": "Phương pháp lập trình hướng đối tượng trong Java.pdf",
+    "expected_page": 197
+  },
+  {
+    "id": 55,
+    "question": "Cơ sở nào để quyết định nên hay không nên để lớp X kế thừa (chuyên biệt hóa) lớp Y?",
+    "expected_source": "Phương pháp lập trình hướng đối tượng trong Java.pdf",
+    "expected_page": 104
+  },
+  {
+    "id": 56,
+    "question": "Giải thích ví dụ thiết kế 4 lớp hình học: Square, Circle, Triangle và Shape trong tính đa hình.",
+    "expected_source": "Phương pháp lập trình hướng đối tượng trong Java.pdf",
+    "expected_page": 104
+  },
+  {
+    "id": 57,
+    "question": "Thuật ngữ Member function, Object và Object serialization trong Java nghĩa là gì?",
+    "expected_source": "Phương pháp lập trình hướng đối tượng trong Java.pdf",
+    "expected_page": 240
+  },
+  {
+    "id": 58,
+    "question": "Phương thức equals(Object) của lớp Object được dùng để làm gì khi thao tác với Collections?",
+    "expected_source": "Phương pháp lập trình hướng đối tượng trong Java.pdf",
+    "expected_page": 216
+  },
+  {
+    "id": 59,
+    "question": "Tại sao thao tác đọc tập tin của MS-DOS lại bị đánh giá là kém hiệu quả?",
+    "expected_source": "HDH_Chuong_6.pdf",
+    "expected_page": 37
+  },
+  {
+    "id": 60,
+    "question": "Vì sao nên sử dụng phương thức setter để thay đổi giá trị của biến thực thể trong lập trình hướng đối tượng?",
+    "expected_source": "Phương pháp lập trình hướng đối tượng trong Java.pdf",
+    "expected_page": 71
+  },
+  {
+    "id": 61,
+    "question": "Các cổng kết nối (port) phía sau khối hệ thống máy tính có chức năng gì?",
+    "expected_source": "HDH_Chuong_1.pdf",
+    "expected_page": 58
+  },
+  {
+    "id": 62,
+    "question": "Cuốn sách Design Patterns của nhóm Gang of Four (Erich Gamma, Richard Helm...) nói về nội dung gì?",
+    "expected_source": "Phương pháp lập trình hướng đối tượng trong Java.pdf",
+    "expected_page": 141
+  },
+  {
+    "id": 63,
+    "question": "Mối liên kết nhị phân (Binary relationship) trong cơ sở dữ liệu là gì? Cho ví dụ.",
+    "expected_source": "CHUONG_3_CSDL.pdf",
+    "expected_page": 24
+  },
+  {
+    "id": 64,
+    "question": "Cho ví dụ sử dụng biểu thức lambda (.forEach) để in các phần tử và đếm số phần tử trong Java.",
+    "expected_source": "05-Da-hinh.pdf",
+    "expected_page": 38
+  },
+  {
+    "id": 65,
+    "question": "Bài tập về mức độ truy cập (Access modifiers) của các thành viên trong một lớp Java như thế nào?",
+    "expected_source": "Phương pháp lập trình hướng đối tượng trong Java.pdf",
+    "expected_page": 121
+  },
+  {
+    "id": 66,
+    "question": "Làm thế nào để lập trình đa luồng (multithreading) bằng thư viện luồng trong các ứng dụng?",
+    "expected_source": "HDH_Chuong_3.pdf",
+    "expected_page": 39
+  },
+  {
+    "id": 67,
+    "question": "Làm thế nào để xử lý các ngoại lệ (exceptions) có thể được ném ra từ một đoạn mã Java?",
+    "expected_source": "Phương pháp lập trình hướng đối tượng trong Java.pdf",
+    "expected_page": 175
+  },
+  {
+    "id": 68,
+    "question": "Cách cập nhật vector trạng thái (Available, Allocation, Need) trong giải thuật Banker khi cấp phát tài nguyên như thế nào?",
+    "expected_source": "HDH_Chuong_4.pdf",
+    "expected_page": 37
+  },
+  {
+    "id": 69,
+    "question": "Trong bài tập quản lý môn thi, quy ước đặt mã môn thi (mamt) đối với một môn học thi ở nhiều hệ đào tạo khác nhau là gì?",
+    "expected_source": "CHUONG_4_CSDL.pdf",
+    "expected_page": 24
+  },
+  {
+    "id": 70,
+    "question": "Tính đóng gói (Encapsulation) trong lập trình hướng đối tượng có ý nghĩa gì?",
+    "expected_source": "03-Lop-va-doi-tuong.pdf",
+    "expected_page": 10
+  }
+]
