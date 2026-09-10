@@ -1,7 +1,5 @@
 from datetime import datetime
-
 from pydantic import BaseModel, ConfigDict
-
 from app.schemas.document import DocumentResponse
 from app.schemas.user import UserResponse
 
