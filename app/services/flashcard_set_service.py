@@ -3,9 +3,27 @@ from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy.orm import selectinload
 from starlette import status
+from app.core.websocket import manager
+from app.db.session import AsyncSessionLocal
 from app.models import FlashcardSet
 from app.rag.generate.flashcard_generator import generate_from_chromadb
 from app.schemas.flashcard_set import FlashcardSetRequest
+
+
+async def background_generate_flashcard_set(document_id: int, user_id: int, title: str):
+    async with AsyncSessionLocal() as db:
+        service = FlashcardSetService(db)
+        try:
+            await service.generate_flashcard_set(document_id=document_id, user_id=user_id, title=title)
+            await manager.send_personal_message(
+                message={"type": "COMPLETED", "message": f"Bộ Flashcard '{title}' đã tạo xong"},
+                user_id=user_id
+            )
+        except Exception as e:
+            await manager.send_personal_message(
+                message={"type": "FAILED", "message": str(e)},
+                user_id=user_id
+            )
 
 
 class FlashcardSetService:
@@ -38,14 +56,17 @@ class FlashcardSetService:
         except Exception:
             return False
 
-    async def update_flashcard_set(self, flashcard_set_id: int, flashcard_set_request: FlashcardSetRequest, user_id: int):
-        flashcard_set = await self.session.get(FlashcardSet, flashcard_set_id, options=[selectinload(FlashcardSet.document)])
+    async def update_flashcard_set(self, flashcard_set_id: int, flashcard_set_request: FlashcardSetRequest,
+                                   user_id: int):
+        flashcard_set = await self.session.get(FlashcardSet, flashcard_set_id,
+                                               options=[selectinload(FlashcardSet.document)])
         if not flashcard_set:
             raise Exception(f"Không tìm thấy tập flashcard: {flashcard_set_id}")
         if user_id != flashcard_set.user_id:
-            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Bạn không có quyền chỉnh sửa tập flashcard này")
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="Bạn không có quyền chỉnh sửa tập flashcard này")
         flashcard_set.title = flashcard_set_request.title
-                
+
         try:
             await self.session.commit()
             await self.session.refresh(flashcard_set)

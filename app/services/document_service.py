@@ -1,6 +1,7 @@
 import logging
 import pickle
 from pathlib import Path
+from urllib.parse import unquote
 from fastapi import BackgroundTasks, HTTPException, UploadFile, status
 from langchain_community.retrievers import BM25Retriever
 from sqlalchemy import Date, cast
@@ -27,27 +28,23 @@ async def run_pipeline_background_task(document_id: int, file_bytes: bytes, file
             if not document:
                 logger.warning(f"Không tìm thấy document ID {document_id}")
                 return
-
             document.process_status = ProcessingStatus.PROCESSING
             await bg_session.commit()
             await process_document_pipeline(document_id, file_bytes, file_name, bg_session)
-
             document.process_status = ProcessingStatus.COMPLETED
             await bg_session.commit()
-
-            await manager.broadcast({
-                "type": "DOCUMENT_COMPLETED",
+            await manager.send_personal_message({
+                "type": "COMPLETED",
                 "document_id": document_id,
                 "message": f"Tài liệu {file_name} đã xử lý xong!"
-            })
+            }, document.lecturer_id)
             logger.info(f"Đã xử lý xong tài liệu ID: {document_id}")
-
         except Exception as e:
-            await manager.broadcast({
-                "type": "DOCUMENT_FAILED",
+            await manager.send_personal_message({
+                "type": "FAILED",
                 "document_id": document_id,
                 "message": f"Xử lý lỗi: {file_name}"
-            })
+            }, document.lecturer_id)
             logger.error(f"Lỗi khi xử lý tài liệu {document_id}: {e!s}")
             if 'document' in locals() and document:
                 document.process_status = ProcessingStatus.FAILED
@@ -82,7 +79,7 @@ def delete_document_vector_db(file_name: str):
                 print("CSDL rỗng, đã xóa file BM25.")
 
     except Exception as e:
-        print(f"Xóa dữ liệu AI thất bại: {e!s}")
+        print(f"Xóa dữ liệu thất bại: {e!s}")
 
 
 class DocumentService:
@@ -118,7 +115,7 @@ class DocumentService:
                 **document_request.model_dump(),
                 file_url=file_url,
                 file_type=extension.removeprefix("."),
-                file_name=file.filename,
+                file_name=unquote(file.filename),
                 process_status=ProcessingStatus.PENDING,
             )
 
@@ -179,22 +176,17 @@ class DocumentService:
                 status_code=status.HTTP_404_NOT_FOUND,
                 detail=f"Không tìm thấy document với id: {document_id}"
             )
-
         try:
             update_data = document_request.model_dump(
                 exclude_unset=True,
                 exclude_none=True,
             )
-
             for field_name, value in update_data.items():
                 setattr(db_document, field_name, value)
-
             if file is not None:
                 if not file.filename:
                     raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Tên file không hợp lệ")
-
                 extension = Path(file.filename).suffix.lower()
-
                 if extension not in ALLOWED_EXTENSIONS:
                     raise HTTPException(
                         status_code=status.HTTP_400_BAD_REQUEST,
@@ -215,15 +207,12 @@ class DocumentService:
                         status_code=status.HTTP_502_BAD_GATEWAY,
                         detail="Cloudinary không trả về secure_url",
                     )
-
                 db_document.file_url = file_url
                 db_document.file_type = extension.removeprefix(".")
                 db_document.file_name = file.filename
                 db_document.process_status = ProcessingStatus.PENDING
-
             await self.session.commit()
             await self.session.refresh(db_document)
-
             if file is not None and background_tasks is not None:
                 await file.seek(0)
                 file_bytes = await file.read()

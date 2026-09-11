@@ -1,7 +1,8 @@
 from fastapi import APIRouter, Depends, status
-from app.api.dependencies import get_stats_service
+from app.api.dependencies import get_stats_service, get_current_user
 from app.core.permissions import require_role
-from app.schemas.stats import DocumentCountBySubjectResponse, ProgressChartItem, QuizHistoryResponse, ScoreDistributionResponse
+from app.models import User
+from app.schemas.stats import DocumentCountBySubjectResponse, ScoreDistributionItem
 from app.services.stats_service import StatsService
 
 router = APIRouter(prefix="/stats", tags=["Stats"])
@@ -46,40 +47,27 @@ async def count_students(stats_service: StatsService = Depends(get_stats_service
     return await stats_service.count_student()
 
 
-@router.get("/stats-docs-by-subject", response_model=list[DocumentCountBySubjectResponse], status_code=status.HTTP_200_OK)
+@router.get("/stats-docs-by-subject", response_model=list[DocumentCountBySubjectResponse],
+            status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER"])
 async def count_documents_by_subject(stats_service: StatsService = Depends(get_stats_service)):
     return await stats_service.count_documents_by_subject()
 
 
-@router.get("/student/{student_id}/average-score", response_model=float, status_code=status.HTTP_200_OK)
+@router.get("/average-score", response_model=float, status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def get_student_average_score(
-    student_id: int,
-    stats_service: StatsService = Depends(get_stats_service)
+        student_id: int,
+        current_user: User = Depends(get_current_user),
+        stats_service: StatsService = Depends(get_stats_service)
 ):
-    return await stats_service.get_student_average_score(student_id=student_id)
+    return await stats_service.get_student_average_score(student_id=current_user.id)
 
-@router.get("/student/{student_id}/quiz-history", response_model=list[QuizHistoryResponse], status_code=status.HTTP_200_OK)
-@require_role(["ADMIN", "LECTURER", "STUDENT"])
-async def get_student_quiz_history(
-    student_id: int,
-    stats_service: StatsService = Depends(get_stats_service)
-):
-    return await stats_service.get_student_quiz_history(student_id=student_id)
 
-@router.get("/student/{student_id}/progress-chart", response_model=list[ProgressChartItem], status_code=status.HTTP_200_OK)
+@router.get("/score-distribution", response_model=list[ScoreDistributionItem], status_code=status.HTTP_200_OK)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
-async def get_student_progress_chart(
-    student_id: int,
-    stats_service: StatsService = Depends(get_stats_service)
+async def get_score_distribution(
+        current_user: User = Depends(get_current_user),
+        stats_service: StatsService = Depends(get_stats_service)
 ):
-    return await stats_service.get_student_progress_chart(student_id=student_id)
-
-@router.get("/student/{student_id}/score-distribution", response_model=ScoreDistributionResponse, status_code=status.HTTP_200_OK)
-@require_role(["ADMIN", "LECTURER", "STUDENT"])
-async def get_student_score_distribution(
-    student_id: int,
-    stats_service: StatsService = Depends(get_stats_service)
-):
-    return await stats_service.get_student_score_distribution(student_id=student_id)
+    return await stats_service.get_score_distribution(student_id=current_user.id)

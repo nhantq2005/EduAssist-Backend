@@ -5,7 +5,7 @@ from app.schemas.option import OptionRequest, OptionResponse
 
 class QuestionRequest(BaseModel):
     question: str
-    # score: float = Field(default=1.0, description="Điểm của câu hỏi")
+    # score: float = Field(default=1.0)
     quiz_id: int | None = Field(default=None)
     explanation: str | None = Field(default=None)
     options: list[OptionRequest]

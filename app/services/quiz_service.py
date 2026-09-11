@@ -1,11 +1,34 @@
 from fastapi import HTTPException
 from sqlalchemy import or_, select
 from sqlalchemy.ext.asyncio import AsyncSession
+from app.core.websocket import manager
+from app.db.session import AsyncSessionLocal
 from app.models import Quiz
 from app.models.quiz import SourceType
 from app.rag.generate.quiz_generator import QuizData, generate_quiz_from_topic
 from app.schemas.quiz import QuizCreate, QuizGenerateRequest
 from app.services.question_service import QuestionService
+
+
+async def background_generate_quiz(request: QuizGenerateRequest, user_id: int):
+    async with AsyncSessionLocal() as db:
+        quiz_service = QuizService(db)
+        question_service = QuestionService(db)
+        try:
+            await quiz_service.generate_and_save_quiz(
+                request=request,
+                user_id=user_id,
+                question_service=question_service
+            )
+            await manager.send_personal_message(
+                message={"type": "COMPLETED", "message": f"Bài trắc nghiệm '{request.topic}' đã tạo xong"},
+                user_id=user_id
+            )
+        except Exception as e:
+            await manager.send_personal_message(
+                message={"type": "FAILED", "message": f"Lỗi tạo trắc nghiệm: {str(e)}"},
+                user_id=user_id
+            )
 
 
 class QuizService:

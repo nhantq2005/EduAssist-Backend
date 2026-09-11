@@ -1,12 +1,14 @@
-from fastapi import APIRouter, Depends, status
+from fastapi import APIRouter, Depends, status, BackgroundTasks
 from app.api.dependencies import get_current_user, get_flashcard_service, get_flashcard_set_service
 from app.core.permissions import require_role
 from app.models import User
 from app.schemas.flashcard import FlashcardResponse
 from app.schemas.flashcard_set import FlashcardSetRequest, FlashcardSetResponse, GenerateFlashcardSetRequest
 from app.services.flashcard_service import FlashcardService
-from app.services.flashcard_set_service import FlashcardSetService
+from app.services.flashcard_set_service import FlashcardSetService, background_generate_flashcard_set
 from fastapi import HTTPException
+
+from app.services.quiz_service import background_generate_quiz
 
 router = APIRouter(tags=['Flashcard'])
 
@@ -34,17 +36,21 @@ async def get_flashcard_sets(
     return await service.get_flashcard_set(user_id=current_user.id, params=params)
 
 
-@router.post('/flashcard-sets/generate', response_model=FlashcardSetResponse, status_code=status.HTTP_201_CREATED)
+@router.post('/flashcard-sets/generate', status_code=status.HTTP_202_ACCEPTED)
 @require_role(["ADMIN", "LECTURER", "STUDENT"])
 async def generate_flashcard_set(
         generate_flashcard_set_request: GenerateFlashcardSetRequest,
-        current_user: User = Depends(get_current_user),
-        service: FlashcardSetService = Depends(get_flashcard_set_service)
+        background_tasks: BackgroundTasks,
+        current_user: User = Depends(get_current_user)
 ):
     try:
-        return await service.generate_flashcard_set(document_id=generate_flashcard_set_request.document_id,
-                                                    user_id=current_user.id,
-                                                    title=generate_flashcard_set_request.title)
+        background_tasks.add_task(
+            background_generate_flashcard_set,
+            document_id=generate_flashcard_set_request.document_id,
+            user_id=current_user.id,
+            title=generate_flashcard_set_request.title
+        )
+        return {"message": "Bắt đầu tạo bộ flashcard. Bạn sẽ nhận được thông báo khi hoàn tất."}
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail=str(e))
 

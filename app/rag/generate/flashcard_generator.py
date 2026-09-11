@@ -12,12 +12,13 @@ import random
 from app.schemas.flashcard import FlashcardList
 
 
-async def generate_from_chromadb(db: AsyncSession, document_id: int, user_id: int, title: str) -> FlashcardSet:
+async def generate_from_chromadb(db: AsyncSession, document_id: int, user_id: int, title: str):
     result = await db.execute(select(Document).where(Document.id == document_id))
     doc = result.scalar_one_or_none()
     
     if not doc or not doc.file_name:
         raise ValueError("Document không tồn tại hoặc không có tên file")
+
 
     vectorstore = rag_models_instance.vectorstore
     chroma_results = await asyncio.to_thread(vectorstore.get, where={"source": doc.file_name})
@@ -30,7 +31,7 @@ async def generate_from_chromadb(db: AsyncSession, document_id: int, user_id: in
     current_text = ""
     for chunk_text in chunks:
         current_text += chunk_text + "\n\n"
-        if len(current_text) > 1500:
+        if len(current_text) > 5000:
             merged_texts.append(current_text)
             current_text = ""
     if current_text:
@@ -38,7 +39,7 @@ async def generate_from_chromadb(db: AsyncSession, document_id: int, user_id: in
 
     llm = ChatGoogleGenerativeAI(model="gemini-3.5-flash", temperature=0.3)
     structured_llm = llm.with_structured_output(FlashcardList)
-    sem = asyncio.Semaphore(5)
+    sem = asyncio.Semaphore(2)
 
     async def process_block(text_block):
         prompt = f"""
@@ -49,15 +50,24 @@ async def generate_from_chromadb(db: AsyncSession, document_id: int, user_id: in
             {text_block}
         """
         async with sem:
-            try:
-                return await structured_llm.ainvoke(prompt)
-            except Exception as e:
-                print(f"Lỗi gọi LLM ở đoạn text này, bỏ qua: {e}")
-                return None
+            for attempt in range(3):
+                try:
+                    if attempt > 0:
+                        print(f"Thử lại lần {attempt}...")
+                    return await structured_llm.ainvoke(prompt)
+                except Exception as e:
+                    error_msg = str(e)
+                    print(f"Lỗi gọi LLM ở đoạn text này (lần {attempt + 1}/3): {error_msg}")
+                    if "429" in error_msg or "RESOURCE_EXHAUSTED" in error_msg:
+                        print("Đã đạt giới hạn. Vui lòng thử lại sau")
+                        await asyncio.sleep(15)
+                    else:
+                        break
+            return None
 
-    sampled_texts = random.sample(merged_texts, min(10, len(merged_texts)))
+    # sampled_texts = random.sample(merged_texts, min(10, len(merged_texts)))
 
-    tasks = [process_block(block) for block in sampled_texts]
+    tasks = [process_block(block) for block in merged_texts]
     results = await asyncio.gather(*tasks)
 
     all_extracted_cards = []

@@ -9,8 +9,8 @@ def get_hybrid_reranked_retriever(top_k: int = 3):
 
     bm25_retriever = rag_models_instance.bm25_retriever
     if bm25_retriever is not None:
-        bm25_retriever.k = top_k * 5
-        base_retriever = EnsembleRetriever(retrievers=[bm25_retriever, chroma_retriever], weights=[0.3, 0.7])
+        bm25_retriever.k = top_k * 3
+        base_retriever = EnsembleRetriever(retrievers=[bm25_retriever, chroma_retriever], weights=[0.5, 0.5])
     else:
         base_retriever = chroma_retriever
 

@@ -11,12 +11,10 @@ from app.services import chat_message_service
 
 load_dotenv()
 
-MAX_HISTORY_TURNS = 3
-
 def format_chat_history(messages):
     if not messages:
         return "Chưa có lịch sử hội thoại."
-    recent_messages = messages[-MAX_HISTORY_TURNS:]
+    recent_messages = messages[-3:]
     history_str = ""
     for msg in recent_messages:
         history_str += f"Sinh viên: {msg.question}\n"
