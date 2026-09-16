@@ -70,7 +70,8 @@ class QuizAttemptService:
     async def submit_quiz(self, user_id: int, quiz_id: int, request_data):
         stm_quiz = select(Quiz).where(Quiz.id == quiz_id)
         result_quiz = await self.session.execute(stm_quiz)
-        if not result_quiz.scalar_one_or_none():
+        quiz_obj = result_quiz.scalar_one_or_none()
+        if not quiz_obj:
             raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Không tìm thấy bài quiz này")
 
         answers = request_data.answers
@@ -119,5 +120,7 @@ class QuizAttemptService:
         quiz_attempt.correct_count = correct_count
         quiz_attempt.total_score = score
         await self.session.commit()
-        await self.session.refresh(quiz_attempt)
-        return quiz_attempt
+
+        stm = select(QuizAttempt).options(selectinload(QuizAttempt.quiz)).where(QuizAttempt.id == quiz_attempt.id)
+        result = await self.session.execute(stm)
+        return result.scalar_one()

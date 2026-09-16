@@ -12,10 +12,8 @@ class ChatSessionService:
 
     async def create_chat_session(self, chat_session_request: ChatSessionRequest, user_id: int):
         try:
-            session = ChatSession(
-                **chat_session_request.model_dump(),
-                user_id=user_id
-            )
+            session = ChatSession(**chat_session_request.model_dump(),
+                                    user_id=user_id)
             self.session.add(session)
             await self.session.commit()
             await self.session.refresh(session)
